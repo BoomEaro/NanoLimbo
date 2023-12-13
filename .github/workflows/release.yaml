@@ -16,7 +16,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew shadowJar
     - name: Find correct JAR
       id: find-jar
       run: |
