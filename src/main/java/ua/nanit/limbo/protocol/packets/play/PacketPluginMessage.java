@@ -24,10 +24,13 @@ import ua.nanit.limbo.protocol.registry.Version;
 public class PacketPluginMessage implements PacketOut {
 
     private String channel;
+    private String modernChannel;
+
     private byte[] message;
 
-    public void setChannel(String channel) {
+    public void setChannel(String channel, String modernChannel) {
         this.channel = channel;
+        this.modernChannel = modernChannel;
     }
 
     public void setMessage(byte[] message) {
@@ -36,7 +39,8 @@ public class PacketPluginMessage implements PacketOut {
 
     @Override
     public void encode(ByteMessage msg, Version version) {
-        msg.writeString(channel);
+        String tag = version.moreOrEqual(Version.V1_13) ? modernChannel : channel;
+        msg.writeString(tag);
         msg.writeBytes(message);
     }
 

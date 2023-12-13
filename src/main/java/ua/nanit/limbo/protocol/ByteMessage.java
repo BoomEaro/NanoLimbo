@@ -95,10 +95,10 @@ public class ByteMessage extends ByteBuf {
         return str;
     }
 
-    public void writeString(CharSequence str) {
-        int size = ByteBufUtil.utf8Bytes(str);
-        writeVarInt(size);
-        buf.writeCharSequence(str, StandardCharsets.UTF_8);
+    public void writeString(String str) {
+        byte[] b = str.getBytes(StandardCharsets.UTF_8);
+        writeVarInt(b.length);
+        buf.writeBytes(b);
     }
 
     public byte[] readBytesArray() {

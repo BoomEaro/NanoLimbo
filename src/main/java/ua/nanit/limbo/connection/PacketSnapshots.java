@@ -29,7 +29,9 @@ import ua.nanit.limbo.server.LimboServer;
 import ua.nanit.limbo.server.data.Title;
 import ua.nanit.limbo.util.UuidUtil;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -62,6 +64,7 @@ public final class PacketSnapshots {
     public static PacketSnapshot PACKET_FINISH_CONFIGURATION;
 
     public static PacketSnapshot PACKET_SERVER_TELEPORT;
+    public static List<PacketSnapshot> PACKETS_CHUNKS;
 
     private PacketSnapshots() { }
 
@@ -91,9 +94,11 @@ public final class PacketSnapshots {
         joinGame.setDimensionRegistry(server.getDimensionRegistry());
 
         PacketPlayerAbilities playerAbilities = new PacketPlayerAbilities();
-        playerAbilities.setFlyingSpeed(0.0F);
-        playerAbilities.setFlags(0x02);
-        playerAbilities.setFieldOfView(0.1F);
+        playerAbilities.setCanFly(true);
+        playerAbilities.setFlying(true);
+        playerAbilities.setInvincible(true);
+        playerAbilities.setFlySpeed(0.5f);
+        playerAbilities.setWalkSpeed(0.1f);
 
         int teleportId = ThreadLocalRandom.current().nextInt();
 
@@ -101,9 +106,9 @@ public final class PacketSnapshots {
                 = new PacketSynchronizePlayerPositionAndLook(0, 64, 0, 0, 0, teleportId);
 
         PacketSynchronizePlayerPositionAndLook positionAndLook
-                = new PacketSynchronizePlayerPositionAndLook(0, 400, 0, 0, 0, teleportId);
+                = new PacketSynchronizePlayerPositionAndLook(0, 64, 0, 0, 0, teleportId);
 
-        PacketSpawnPosition packetSpawnPosition = new PacketSpawnPosition(0, 400, 0);
+        PacketSpawnPosition packetSpawnPosition = new PacketSpawnPosition(0, 64, 0);
 
         PacketDeclareCommands declareCommands = new PacketDeclareCommands();
         declareCommands.setCommands(Collections.emptyList());
@@ -132,7 +137,8 @@ public final class PacketSnapshots {
 
         if (server.getConfig().isUseBrandName()){
             PacketPluginMessage pluginMessage = new PacketPluginMessage();
-            pluginMessage.setChannel(LimboConstants.BRAND_CHANNEL);
+            String brand = LimboConstants.BRAND_CHANNEL;
+            pluginMessage.setChannel(brand, brand);
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF(server.getConfig().getBrandName());
             pluginMessage.setMessage(out.toByteArray());
@@ -196,12 +202,29 @@ public final class PacketSnapshots {
         PACKET_FINISH_CONFIGURATION = PacketSnapshot.of(new PacketFinishConfiguration());
 
         PacketPluginMessage pluginMessage = new PacketPluginMessage();
-        pluginMessage.setChannel("bungeecord:main");
+        pluginMessage.setChannel("BungeeCord", "bungeecord:main");
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Connect");
         out.writeUTF(server.getConfig().getOnMoveServer());
         pluginMessage.setMessage(out.toByteArray());
 
         PACKET_SERVER_TELEPORT = PacketSnapshot.of(pluginMessage);
+
+        int chunkXOffset = (int) 0 >> 4; // Default x position is 0
+        int chunkZOffset = (int) 0 >> 4; // Default z position is 0
+        int chunkEdgeSize = 1;
+
+        List<PacketSnapshot> emptyChunks = new ArrayList<>();
+        // Make multiple chunks for edges
+        for (int chunkX = chunkXOffset - chunkEdgeSize; chunkX <= chunkXOffset + chunkEdgeSize; ++chunkX) {
+            for (int chunkZ = chunkZOffset - chunkEdgeSize; chunkZ <= chunkZOffset + chunkEdgeSize; ++chunkZ) {
+                PacketEmptyChunk packetEmptyChunk = new PacketEmptyChunk();
+                packetEmptyChunk.setX(chunkX);
+                packetEmptyChunk.setZ(chunkZ);
+
+                emptyChunks.add(PacketSnapshot.of(packetEmptyChunk));
+            }
+        }
+        PACKETS_CHUNKS = emptyChunks;
     }
 }

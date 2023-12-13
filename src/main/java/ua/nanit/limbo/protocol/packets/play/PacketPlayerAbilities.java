@@ -23,27 +23,66 @@ import ua.nanit.limbo.protocol.registry.Version;
 
 public class PacketPlayerAbilities implements PacketOut {
 
-    private int flags = 0x02;
-    private float flyingSpeed = 0.0F;
-    private float fieldOfView = 0.1F;
+    private static final int FLAG_INVINCIBLE = 0x01;
+    private static final int FLAG_FLYING = 0x02;
+    private static final int FLAG_CAN_FLY = 0x04;
+    private static final int FLAG_CREATIVE = 0x08;
 
-    public void setFlags(int flags) {
-        this.flags = flags;
+    private boolean invincible;
+    private boolean canFly;
+    private boolean flying;
+    private boolean creative;
+
+    private float flySpeed;
+    private float walkSpeed;
+
+    public void setInvincible(boolean invincible) {
+        this.invincible = invincible;
     }
 
-    public void setFlyingSpeed(float flyingSpeed) {
-        this.flyingSpeed = flyingSpeed;
+    public void setCanFly(boolean canFly) {
+        this.canFly = canFly;
     }
 
-    public void setFieldOfView(float fieldOfView) {
-        this.fieldOfView = fieldOfView;
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+    }
+
+    public void setCreative(boolean creative) {
+        this.creative = creative;
+    }
+
+    public void setFlySpeed(float flySpeed) {
+        this.flySpeed = flySpeed;
+    }
+
+    public void setWalkSpeed(float walkSpeed) {
+        this.walkSpeed = walkSpeed;
     }
 
     @Override
     public void encode(ByteMessage msg, Version version) {
+        int flags = 0;
+        if (this.invincible) {
+            flags |= FLAG_INVINCIBLE;
+        }
+
+        if (this.canFly) {
+            flags |= FLAG_CAN_FLY;
+        }
+
+        if (this.flying) {
+            flags |= FLAG_FLYING;
+        }
+
+        if (this.creative) {
+            flags |= FLAG_CREATIVE;
+        }
+
         msg.writeByte(flags);
-        msg.writeFloat(flyingSpeed);
-        msg.writeFloat(fieldOfView);
+
+        msg.writeFloat(this.flySpeed);
+        msg.writeFloat(this.walkSpeed);
     }
 
 }

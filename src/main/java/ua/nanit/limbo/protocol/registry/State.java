@@ -19,9 +19,10 @@ package ua.nanit.limbo.protocol.registry;
 
 import ua.nanit.limbo.protocol.Packet;
 import ua.nanit.limbo.protocol.packets.PacketHandshake;
+import ua.nanit.limbo.protocol.packets.configuration.PacketFinishConfiguration;
+import ua.nanit.limbo.protocol.packets.configuration.PacketRegistryData;
 import ua.nanit.limbo.protocol.packets.login.*;
 import ua.nanit.limbo.protocol.packets.play.*;
-import ua.nanit.limbo.protocol.packets.configuration.*;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusPing;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusRequest;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusResponse;
@@ -148,6 +149,21 @@ public enum State {
                     map(0x16, V1_19_4, V1_20),
                     map(0x18, V1_20_2, V1_20_2)
             );
+            serverBound.register(PacketPlayerPositionAndLook::new,
+                    map(0x06, V1_7_2, V1_8),
+                    map(0x0D, V1_9, V1_11_1),
+                    map(0x0F, V1_12, V1_12),
+                    map(0x0E, V1_12_1, V1_12_2),
+                    map(0x11, V1_13, V1_13_2),
+                    map(0x12, V1_14, V1_15_2),
+                    map(0x13, V1_16, V1_16_4),
+                    map(0x12, V1_17, V1_18_2),
+                    map(0x14, V1_19, V1_19),
+                    map(0x15, V1_19_1, V1_19_1),
+                    map(0x14, V1_19_3, V1_19_3),
+                    map(0x15, V1_19_4, V1_20),
+                    map(0x17, V1_20_2, V1_20_2)
+            );
 
             clientBound.register(PacketDeclareCommands::new,
                     map(0x11, V1_13, V1_14_4),
@@ -175,6 +191,8 @@ public enum State {
                     map(0x29, V1_20_2, V1_20_2)
             );
             clientBound.register(PacketPluginMessage::new,
+                    map(0x3F, V1_8, V1_8),
+                    map(0x18, V1_9, V1_12_2),
                     map(0x19, V1_13, V1_13_2),
                     map(0x18, V1_14, V1_14_4),
                     map(0x19, V1_15, V1_15_2),
@@ -328,6 +346,21 @@ public enum State {
                     map(0x50, V1_19_4, V1_20),
                     map(0x52, V1_20_2, V1_20_2)
             );
+            clientBound.register(PacketEmptyChunk::new,
+                    map(0x21, V1_8, V1_8),
+                    map(0x20, V1_9, V1_12_2),
+                    map(0x22, V1_13, V1_13_2),
+                    map(0x21, V1_14, V1_14_4),
+                    map(0x22, V1_15, V1_15_2),
+                    map(0x21, V1_16, V1_16_1),
+                    map(0x20, V1_16_2, V1_16_4),
+                    map(0x22, V1_17, V1_18_2),
+                    map(0x1F, V1_19, V1_19),
+                    map(0x21, V1_19_1, V1_19_1),
+                    map(0x20, V1_19_3, V1_19_3),
+                    map(0x24, V1_19_4, V1_20),
+                    map(0x25, V1_20_2, V1_20_2)
+            );
         }
     };
 
@@ -434,9 +467,10 @@ public enum State {
 
     /**
      * Map packet id to version range
+     *
      * @param packetId Packet id
-     * @param from Minimal version (include)
-     * @param to Last version (include)
+     * @param from     Minimal version (include)
+     * @param to       Last version (include)
      * @return Created mapping
      */
     private static Mapping map(int packetId, Version from, Version to) {

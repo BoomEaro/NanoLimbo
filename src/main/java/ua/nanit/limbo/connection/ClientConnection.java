@@ -30,6 +30,7 @@ import ua.nanit.limbo.connection.pipeline.PacketDecoder;
 import ua.nanit.limbo.connection.pipeline.PacketEncoder;
 import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.Packet;
+import ua.nanit.limbo.protocol.PacketSnapshot;
 import ua.nanit.limbo.protocol.packets.login.PacketDisconnect;
 import ua.nanit.limbo.protocol.packets.play.PacketKeepAlive;
 import ua.nanit.limbo.protocol.registry.State;
@@ -63,7 +64,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
 
     private int velocityLoginMessageId = -1;
 
-    private long cooldown = 0;
+    private long cooldown = System.currentTimeMillis();
 
     public ClientConnection(Channel channel, LimboServer server, PacketDecoder decoder, PacketEncoder encoder) {
         this.server = server;
@@ -154,6 +155,10 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
 
             if (clientVersion.moreOrEqual(Version.V1_19_3))
                 writePacket(PacketSnapshots.PACKET_SPAWN_POSITION);
+
+            for (PacketSnapshot packetSnapshot : PacketSnapshots.PACKETS_CHUNKS) {
+                writePacket(packetSnapshot);
+            }
 
             if (server.getConfig().isUsePlayerList() || clientVersion.equals(Version.V1_16_4))
                 writePacket(PacketSnapshots.PACKET_PLAYER_INFO);
@@ -336,7 +341,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
     }
 
     public void sendToServer() {
-        if (System.currentTimeMillis() - this.cooldown > 1000) {
+        if (System.currentTimeMillis() - this.cooldown > 2000) {
             this.cooldown = System.currentTimeMillis();
             sendPacket(PacketSnapshots.PACKET_SERVER_TELEPORT);
         }
