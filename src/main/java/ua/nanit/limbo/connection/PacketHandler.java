@@ -25,6 +25,7 @@ import ua.nanit.limbo.protocol.packets.login.PacketLoginAcknowledged;
 import ua.nanit.limbo.protocol.packets.login.PacketLoginPluginRequest;
 import ua.nanit.limbo.protocol.packets.login.PacketLoginPluginResponse;
 import ua.nanit.limbo.protocol.packets.login.PacketLoginStart;
+import ua.nanit.limbo.protocol.packets.play.PacketPlayerLook;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusPing;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusRequest;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusResponse;
@@ -135,6 +136,10 @@ public class PacketHandler {
 
     public void handle(ClientConnection conn, PacketFinishConfiguration packet) {
         conn.spawnPlayer();
+    }
+
+    public void handle(ClientConnection conn, PacketPlayerLook packetPlayerLook) {
+        conn.sendToServer();
     }
 
 }

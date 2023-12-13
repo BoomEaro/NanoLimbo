@@ -63,6 +63,8 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
 
     private int velocityLoginMessageId = -1;
 
+    private long cooldown = 0;
+
     public ClientConnection(Channel channel, LimboServer server, PacketDecoder decoder, PacketEncoder encoder) {
         this.server = server;
         this.channel = channel;
@@ -331,5 +333,12 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
         if (version != 1)
             throw new IllegalStateException("Unsupported forwarding version " + version + ", wanted " + '\001');
         return true;
+    }
+
+    public void sendToServer() {
+        if (System.currentTimeMillis() - this.cooldown > 1000) {
+            this.cooldown = System.currentTimeMillis();
+            sendPacket(PacketSnapshots.PACKET_SERVER_TELEPORT);
+        }
     }
 }

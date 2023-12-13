@@ -21,7 +21,7 @@ import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.PacketOut;
 import ua.nanit.limbo.protocol.registry.Version;
 
-public class PacketPlayerPositionAndLook implements PacketOut {
+public class PacketSynchronizePlayerPositionAndLook implements PacketOut {
 
     private double x;
     private double y;
@@ -30,9 +30,9 @@ public class PacketPlayerPositionAndLook implements PacketOut {
     private float pitch;
     private int teleportId;
 
-    public PacketPlayerPositionAndLook() {}
+    public PacketSynchronizePlayerPositionAndLook() {}
 
-    public PacketPlayerPositionAndLook(double x, double y, double z, float yaw, float pitch, int teleportId) {
+    public PacketSynchronizePlayerPositionAndLook(double x, double y, double z, float yaw, float pitch, int teleportId) {
         this.x = x;
         this.y = y;
         this.z = z;

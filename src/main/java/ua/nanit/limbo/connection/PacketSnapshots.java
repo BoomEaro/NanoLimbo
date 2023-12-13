@@ -17,6 +17,8 @@
 
 package ua.nanit.limbo.connection;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import ua.nanit.limbo.LimboConstants;
 import ua.nanit.limbo.protocol.PacketSnapshot;
 import ua.nanit.limbo.protocol.packets.configuration.PacketFinishConfiguration;
@@ -59,6 +61,8 @@ public final class PacketSnapshots {
     public static PacketSnapshot PACKET_REGISTRY_DATA;
     public static PacketSnapshot PACKET_FINISH_CONFIGURATION;
 
+    public static PacketSnapshot PACKET_SERVER_TELEPORT;
+
     private PacketSnapshots() { }
 
     public static void initPackets(LimboServer server) {
@@ -93,11 +97,11 @@ public final class PacketSnapshots {
 
         int teleportId = ThreadLocalRandom.current().nextInt();
 
-        PacketPlayerPositionAndLook positionAndLookLegacy
-                = new PacketPlayerPositionAndLook(0, 64, 0, 0, 0, teleportId);
+        PacketSynchronizePlayerPositionAndLook positionAndLookLegacy
+                = new PacketSynchronizePlayerPositionAndLook(0, 64, 0, 0, 0, teleportId);
 
-        PacketPlayerPositionAndLook positionAndLook
-                = new PacketPlayerPositionAndLook(0, 400, 0, 0, 0, teleportId);
+        PacketSynchronizePlayerPositionAndLook positionAndLook
+                = new PacketSynchronizePlayerPositionAndLook(0, 400, 0, 0, 0, teleportId);
 
         PacketSpawnPosition packetSpawnPosition = new PacketSpawnPosition(0, 400, 0);
 
@@ -129,7 +133,9 @@ public final class PacketSnapshots {
         if (server.getConfig().isUseBrandName()){
             PacketPluginMessage pluginMessage = new PacketPluginMessage();
             pluginMessage.setChannel(LimboConstants.BRAND_CHANNEL);
-            pluginMessage.setMessage(server.getConfig().getBrandName());
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF(server.getConfig().getBrandName());
+            pluginMessage.setMessage(out.toByteArray());
             PACKET_PLUGIN_MESSAGE = PacketSnapshot.of(pluginMessage);
         }
 
@@ -188,5 +194,14 @@ public final class PacketSnapshots {
 
         PACKET_REGISTRY_DATA = PacketSnapshot.of(packetRegistryData);
         PACKET_FINISH_CONFIGURATION = PacketSnapshot.of(new PacketFinishConfiguration());
+
+        PacketPluginMessage pluginMessage = new PacketPluginMessage();
+        pluginMessage.setChannel("bungeecord:main");
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Connect");
+        out.writeUTF(server.getConfig().getOnMoveServer());
+        pluginMessage.setMessage(out.toByteArray());
+
+        PACKET_SERVER_TELEPORT = PacketSnapshot.of(pluginMessage);
     }
 }

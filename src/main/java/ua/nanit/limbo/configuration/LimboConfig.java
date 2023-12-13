@@ -75,6 +75,8 @@ public final class LimboConfig {
     private int maxPacketSize;
     private int maxPacketsPerSec;
     private int maxBytesPerSec;
+    
+    private String onMoveServer;
 
     public LimboConfig(Path root) {
         this.root = root;
@@ -137,6 +139,8 @@ public final class LimboConfig {
         maxPacketSize = conf.node("traffic", "packetSize").getInt(-1);
         maxPacketsPerSec = conf.node("traffic", "packets").getInt(-1);
         maxBytesPerSec = conf.node("traffic", "bytes").getInt(-1);
+
+        onMoveServer = conf.node("onMoveServer").getString();
     }
 
     private BufferedReader getReader() throws IOException {
@@ -275,5 +279,9 @@ public final class LimboConfig {
 
     public int getMaxBytesPerSec() {
         return maxBytesPerSec;
+    }
+
+    public String getOnMoveServer() {
+        return onMoveServer;
     }
 }

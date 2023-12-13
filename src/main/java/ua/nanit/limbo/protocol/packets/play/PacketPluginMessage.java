@@ -24,20 +24,20 @@ import ua.nanit.limbo.protocol.registry.Version;
 public class PacketPluginMessage implements PacketOut {
 
     private String channel;
-    private String message;
+    private byte[] message;
 
     public void setChannel(String channel) {
         this.channel = channel;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(byte[] message) {
         this.message = message;
     }
 
     @Override
     public void encode(ByteMessage msg, Version version) {
         msg.writeString(channel);
-        msg.writeString(message);
+        msg.writeBytes(message);
     }
 
 }
