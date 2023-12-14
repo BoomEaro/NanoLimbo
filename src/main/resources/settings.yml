@@ -130,3 +130,4 @@ traffic:
   # Ignored if -1
   bytes: 2048
 onMoveServer: lobby
+cooldownTime: 5000

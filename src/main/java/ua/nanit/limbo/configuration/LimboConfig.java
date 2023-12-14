@@ -77,6 +77,7 @@ public final class LimboConfig {
     private int maxBytesPerSec;
     
     private String onMoveServer;
+    private long cooldownTime;
 
     public LimboConfig(Path root) {
         this.root = root;
@@ -141,6 +142,7 @@ public final class LimboConfig {
         maxBytesPerSec = conf.node("traffic", "bytes").getInt(-1);
 
         onMoveServer = conf.node("onMoveServer").getString();
+        cooldownTime = conf.node("cooldownTime").getLong();
     }
 
     private BufferedReader getReader() throws IOException {
@@ -283,5 +285,9 @@ public final class LimboConfig {
 
     public String getOnMoveServer() {
         return onMoveServer;
+    }
+
+    public long getCooldownTime() {
+        return cooldownTime;
     }
 }

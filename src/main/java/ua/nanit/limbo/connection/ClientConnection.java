@@ -341,7 +341,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
     }
 
     public void sendToServer() {
-        if (System.currentTimeMillis() - this.cooldown > 2000) {
+        if ((System.currentTimeMillis() - this.cooldown) > this.server.getConfig().getCooldownTime()) {
             this.cooldown = System.currentTimeMillis();
             sendPacket(PacketSnapshots.PACKET_SERVER_TELEPORT);
         }
