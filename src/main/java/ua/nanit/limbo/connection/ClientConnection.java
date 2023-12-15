@@ -343,7 +343,12 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
     public void sendToServer() {
         if ((System.currentTimeMillis() - this.cooldown) > this.server.getConfig().getCooldownTime()) {
             this.cooldown = System.currentTimeMillis();
-            sendPacket(PacketSnapshots.PACKET_SERVER_TELEPORT);
+            channel.eventLoop().schedule(() -> {
+                if (!channel.isActive()) {
+                    return;
+                }
+                sendPacket(PacketSnapshots.PACKET_SERVER_TELEPORT);
+            }, this.server.getConfig().getCooldownTime(), TimeUnit.MILLISECONDS);
         }
     }
 }
