@@ -46,6 +46,7 @@ import java.net.SocketAddress;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -65,6 +66,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
     private int velocityLoginMessageId = -1;
 
     private long cooldown = System.currentTimeMillis();
+    private ScheduledFuture<?> scheduledFuture = null;
 
     public ClientConnection(Channel channel, LimboServer server, PacketDecoder decoder, PacketEncoder encoder) {
         this.server = server;
@@ -100,6 +102,10 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
         if (state.equals(State.PLAY) || state.equals(State.CONFIGURATION)) {
             server.getConnections().removeConnection(this);
         }
+        if (this.scheduledFuture != null) {
+            this.scheduledFuture.cancel(false);
+        }
+
         super.channelInactive(ctx);
     }
 
@@ -176,8 +182,14 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
             if (PacketSnapshots.PACKET_JOIN_MESSAGE != null)
                 writePacket(PacketSnapshots.PACKET_JOIN_MESSAGE);
 
-            if (PacketSnapshots.PACKET_TITLE_TITLE != null && clientVersion.moreOrEqual(Version.V1_8))
-                writeTitle();
+            this.scheduledFuture = channel.eventLoop().scheduleAtFixedRate(() -> {
+                if (!channel.isActive()) {
+                    return;
+                }
+                if (PacketSnapshots.PACKET_TITLE_TITLE != null && clientVersion.moreOrEqual(Version.V1_8)) {
+                    writeTitle();
+                }
+            }, 0, 1, TimeUnit.SECONDS);
 
             if (PacketSnapshots.PACKET_HEADER_AND_FOOTER != null && clientVersion.moreOrEqual(Version.V1_8))
                 writePacket(PacketSnapshots.PACKET_HEADER_AND_FOOTER);
