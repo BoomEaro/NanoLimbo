@@ -25,7 +25,7 @@ import ua.nanit.limbo.protocol.packets.login.PacketLoginAcknowledged;
 import ua.nanit.limbo.protocol.packets.login.PacketLoginPluginRequest;
 import ua.nanit.limbo.protocol.packets.login.PacketLoginPluginResponse;
 import ua.nanit.limbo.protocol.packets.login.PacketLoginStart;
-import ua.nanit.limbo.protocol.packets.play.PacketPlayerLook;
+import ua.nanit.limbo.protocol.packets.play.PacketPlayerPosition;
 import ua.nanit.limbo.protocol.packets.play.PacketPlayerPositionAndLook;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusPing;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusRequest;
@@ -139,11 +139,11 @@ public class PacketHandler {
         conn.spawnPlayer();
     }
 
-    public void handle(ClientConnection conn, PacketPlayerLook packet) {
-        conn.sendToServer();
+    public void handle(ClientConnection conn, PacketPlayerPositionAndLook packet) {
+        conn.sendToServer(packet.getX(), packet.getY(), packet.getZ());
     }
 
-    public void handle(ClientConnection conn, PacketPlayerPositionAndLook packet) {
-        conn.sendToServer();
+    public void handle(ClientConnection conn, PacketPlayerPosition packet) {
+        conn.sendToServer(packet.getX(), packet.getY(), packet.getZ());
     }
 }

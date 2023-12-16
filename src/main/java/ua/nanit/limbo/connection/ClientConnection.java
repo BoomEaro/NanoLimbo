@@ -352,7 +352,11 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
         return true;
     }
 
-    public void sendToServer() {
+    public void sendToServer(double x, double y, double z) {
+        if (x == 0 && y == 64 && z == 0) {
+            return;
+        }
+
         if ((System.currentTimeMillis() - this.cooldown) > this.server.getConfig().getCooldownTime()) {
             this.cooldown = System.currentTimeMillis();
             channel.eventLoop().schedule(() -> {

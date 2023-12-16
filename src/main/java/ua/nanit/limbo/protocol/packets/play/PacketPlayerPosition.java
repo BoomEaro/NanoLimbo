@@ -6,20 +6,26 @@ import ua.nanit.limbo.protocol.PacketIn;
 import ua.nanit.limbo.protocol.registry.Version;
 import ua.nanit.limbo.server.LimboServer;
 
-public class PacketPlayerLook implements PacketIn {
+public class PacketPlayerPosition implements PacketIn {
 
-    private float yaw;
-    private float pitch;
+    private double x;
+    private double y;
+    private double z;
     private boolean onGround;
 
-    public PacketPlayerLook() {}
-
-    public float getYaw() {
-        return yaw;
+    public PacketPlayerPosition() {
     }
 
-    public float getPitch() {
-        return pitch;
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
     }
 
     public boolean isOnGround() {
@@ -28,8 +34,9 @@ public class PacketPlayerLook implements PacketIn {
 
     @Override
     public void decode(ByteMessage msg, Version version) {
-        this.yaw = msg.readFloat();
-        this.pitch = msg.readFloat();
+        this.x = msg.readDouble();
+        this.y = msg.readDouble();
+        this.z = msg.readDouble();
         this.onGround = msg.readBoolean();
     }
 
