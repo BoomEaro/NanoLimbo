@@ -129,5 +129,7 @@ traffic:
   # How many bytes per second allowed for single connection
   # Ignored if -1
   bytes: 2048
-onMoveServer: lobby
+onMoveServers:
+  - "lobby1"
+  - "lobby2"
 cooldownTime: 5000

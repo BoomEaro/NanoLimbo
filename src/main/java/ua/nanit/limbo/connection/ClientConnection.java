@@ -45,6 +45,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
@@ -363,7 +365,11 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
                 if (!channel.isActive()) {
                     return;
                 }
-                sendPacket(PacketSnapshots.PACKET_SERVER_TELEPORT);
+                Random random = ThreadLocalRandom.current();
+
+                List<PacketSnapshot> packets = PacketSnapshots.PACKET_SERVER_TELEPORTS;
+                PacketSnapshot randomPacket = packets.get(random.nextInt(packets.size()));
+                sendPacket(randomPacket);
             }, this.server.getConfig().getCooldownTime(), TimeUnit.MILLISECONDS);
         }
     }

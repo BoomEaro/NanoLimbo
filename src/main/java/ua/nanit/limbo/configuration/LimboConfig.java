@@ -35,6 +35,7 @@ import java.net.SocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public final class LimboConfig {
 
@@ -76,7 +77,7 @@ public final class LimboConfig {
     private int maxPacketsPerSec;
     private int maxBytesPerSec;
     
-    private String onMoveServer;
+    private List<String> onMoveServers;
     private long cooldownTime;
 
     public LimboConfig(Path root) {
@@ -141,7 +142,7 @@ public final class LimboConfig {
         maxPacketsPerSec = conf.node("traffic", "packets").getInt(-1);
         maxBytesPerSec = conf.node("traffic", "bytes").getInt(-1);
 
-        onMoveServer = conf.node("onMoveServer").getString();
+        onMoveServers = conf.node("onMoveServers").getList(String.class);
         cooldownTime = conf.node("cooldownTime").getLong();
     }
 
@@ -283,8 +284,8 @@ public final class LimboConfig {
         return maxBytesPerSec;
     }
 
-    public String getOnMoveServer() {
-        return onMoveServer;
+    public List<String> getOnMoveServers() {
+        return onMoveServers;
     }
 
     public long getCooldownTime() {

@@ -63,7 +63,7 @@ public final class PacketSnapshots {
     public static PacketSnapshot PACKET_REGISTRY_DATA;
     public static PacketSnapshot PACKET_FINISH_CONFIGURATION;
 
-    public static PacketSnapshot PACKET_SERVER_TELEPORT;
+    public static List<PacketSnapshot> PACKET_SERVER_TELEPORTS;
     public static List<PacketSnapshot> PACKETS_CHUNKS;
 
     private PacketSnapshots() { }
@@ -201,14 +201,18 @@ public final class PacketSnapshots {
         PACKET_REGISTRY_DATA = PacketSnapshot.of(packetRegistryData);
         PACKET_FINISH_CONFIGURATION = PacketSnapshot.of(new PacketFinishConfiguration());
 
-        PacketPluginMessage pluginMessage = new PacketPluginMessage();
-        pluginMessage.setChannel("BungeeCord", "bungeecord:main");
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("Connect");
-        out.writeUTF(server.getConfig().getOnMoveServer());
-        pluginMessage.setMessage(out.toByteArray());
+        List<PacketSnapshot> pluginMessages = new ArrayList<>();
+        for (String serverName : server.getConfig().getOnMoveServers()) {
+            PacketPluginMessage pluginMessage = new PacketPluginMessage();
+            pluginMessage.setChannel("BungeeCord", "bungeecord:main");
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(serverName);
+            pluginMessage.setMessage(out.toByteArray());
 
-        PACKET_SERVER_TELEPORT = PacketSnapshot.of(pluginMessage);
+            pluginMessages.add( PacketSnapshot.of(pluginMessage));
+        }
+        PACKET_SERVER_TELEPORTS = pluginMessages;
 
         int chunkXOffset = (int) 0 >> 4; // Default x position is 0
         int chunkZOffset = (int) 0 >> 4; // Default z position is 0
