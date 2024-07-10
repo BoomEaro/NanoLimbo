@@ -43,12 +43,12 @@ public final class Connections {
 
     public void addConnection(ClientConnection connection) {
         connections.put(connection.getUuid(), connection);
-        Logger.info("Player %s connected (%s) [%s]", connection.getUsername(),
+        Log.info("Player %s connected (%s) [%s]", connection.getUsername(),
                 connection.getAddress(), connection.getClientVersion());
     }
 
     public void removeConnection(ClientConnection connection) {
         connections.remove(connection.getUuid());
-        Logger.info("Player %s disconnected", connection.getUsername());
+        Log.info("Player %s disconnected", connection.getUsername());
     }
 }

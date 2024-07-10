@@ -21,9 +21,8 @@ import io.netty.buffer.*;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
-import net.kyori.adventure.nbt.BinaryTagIO;
-import net.kyori.adventure.nbt.BinaryTagTypes;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.*;
+import ua.nanit.limbo.protocol.registry.Version;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,14 +73,37 @@ public class ByteMessage extends ByteBuf {
     }
 
     public void writeVarInt(int value) {
-        while (true) {
-            if ((value & 0xFFFFFF80) == 0) {
-                buf.writeByte(value);
-                return;
-            }
+        // Peel the one and two byte count cases explicitly as they are the most common VarInt sizes
+        // that the proxy will write, to improve inlining.
+        if ((value & (0xFFFFFFFF << 7)) == 0) {
+            buf.writeByte(value);
+        } else if ((value & (0xFFFFFFFF << 14)) == 0) {
+            int w = (value & 0x7F | 0x80) << 8 | (value >>> 7);
+            buf.writeShort(w);
+        } else {
+            writeVarIntFull(value);
+        }
+    }
 
-            buf.writeByte(value & 0x7F | 0x80);
-            value >>>= 7;
+    private void writeVarIntFull(final int value) {
+        // See https://steinborn.me/posts/performance/how-fast-can-you-write-a-varint/
+        if ((value & (0xFFFFFFFF << 7)) == 0) {
+            buf.writeByte(value);
+        } else if ((value & (0xFFFFFFFF << 14)) == 0) {
+            int w = (value & 0x7F | 0x80) << 8 | (value >>> 7);
+            buf.writeShort(w);
+        } else if ((value & (0xFFFFFFFF << 21)) == 0) {
+            int w = (value & 0x7F | 0x80) << 16 | ((value >>> 7) & 0x7F | 0x80) << 8 | (value >>> 14);
+            buf.writeMedium(w);
+        } else if ((value & (0xFFFFFFFF << 28)) == 0) {
+            int w = (value & 0x7F | 0x80) << 24 | (((value >>> 7) & 0x7F | 0x80) << 16)
+                    | ((value >>> 14) & 0x7F | 0x80) << 8 | (value >>> 21);
+            buf.writeInt(w);
+        } else {
+            int w = (value & 0x7F | 0x80) << 24 | ((value >>> 7) & 0x7F | 0x80) << 16
+                    | ((value >>> 14) & 0x7F | 0x80) << 8 | ((value >>> 21) & 0x7F | 0x80);
+            buf.writeInt(w);
+            buf.writeByte(value >>> 28);
         }
     }
 
@@ -194,13 +216,60 @@ public class ByteMessage extends ByteBuf {
         }
     }
 
-    public void writeNamelessCompoundTag(CompoundBinaryTag compoundTag) {
+    public void writeNamelessCompoundTag(BinaryTag binaryTag) {
         try (ByteBufOutputStream stream = new ByteBufOutputStream(buf)) {
-            stream.writeByte(10); // CompoundTag ID
-            BinaryTagTypes.COMPOUND.write(compoundTag, stream);
+            stream.writeByte(binaryTag.type().id());
+
+            // TODO Find a way to improve this...
+            if (binaryTag instanceof CompoundBinaryTag) {
+                CompoundBinaryTag tag = (CompoundBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else if (binaryTag instanceof ByteBinaryTag) {
+                ByteBinaryTag tag = (ByteBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else if (binaryTag instanceof ShortBinaryTag) {
+                ShortBinaryTag tag = (ShortBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else  if (binaryTag instanceof IntBinaryTag) {
+                IntBinaryTag tag = (IntBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else if (binaryTag instanceof LongBinaryTag) {
+                LongBinaryTag tag = (LongBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else if (binaryTag instanceof DoubleBinaryTag) {
+                DoubleBinaryTag tag = (DoubleBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else if (binaryTag instanceof StringBinaryTag) {
+                StringBinaryTag tag = (StringBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else if (binaryTag instanceof ListBinaryTag) {
+                ListBinaryTag tag = (ListBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+            else if (binaryTag instanceof EndBinaryTag) {
+                EndBinaryTag tag = (EndBinaryTag) binaryTag;
+                tag.type().write(tag, stream);
+            }
+
         }
         catch (IOException e) {
             throw new EncoderException("Cannot write NBT CompoundTag");
+        }
+    }
+
+    public void writeNbtMessage(NbtMessage nbtMessage, Version version) {
+        if (version.moreOrEqual(Version.V1_20_3)) {
+            writeNamelessCompoundTag(nbtMessage.getTag());
+        }
+        else {
+            writeString(nbtMessage.getJson());
         }
     }
 

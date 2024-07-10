@@ -24,7 +24,7 @@ import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.Packet;
 import ua.nanit.limbo.protocol.registry.State;
 import ua.nanit.limbo.protocol.registry.Version;
-import ua.nanit.limbo.server.Logger;
+import ua.nanit.limbo.server.Log;
 
 import java.util.List;
 
@@ -47,22 +47,20 @@ public class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         Packet packet = mappings.getPacket(packetId);
 
         if (packet != null) {
-            Logger.debug("Received packet %s[0x%s] (%d bytes)", packet.toString(), Integer.toHexString(packetId), msg.readableBytes());
+            Log.debug("Received packet %s[0x%s] (%d bytes)", packet.toString(), Integer.toHexString(packetId), msg.readableBytes());
             try {
                 packet.decode(msg, version);
             } catch (Exception e) {
-                if (Logger.isDebug()) {
-                    Logger.warning("Cannot decode packet 0x%s", Integer.toHexString(packetId));
-                    e.printStackTrace();
-                }
-                else {
-                    Logger.warning("Cannot decode packet 0x%s: %s", Integer.toHexString(packetId), e.getMessage());
+                if (Log.isDebug()) {
+                    Log.warning("Cannot decode packet 0x%s", e, Integer.toHexString(packetId));
+                } else {
+                    Log.warning("Cannot decode packet 0x%s: %s", Integer.toHexString(packetId), e.getMessage());
                 }
             }
 
             ctx.fireChannelRead(packet);
         } else {
-            Logger.debug("Undefined incoming packet: 0x" + Integer.toHexString(packetId));
+            Log.debug("Undefined incoming packet: 0x" + Integer.toHexString(packetId));
         }
     }
 

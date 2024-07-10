@@ -36,7 +36,7 @@ import ua.nanit.limbo.protocol.packets.play.PacketKeepAlive;
 import ua.nanit.limbo.protocol.registry.State;
 import ua.nanit.limbo.protocol.registry.Version;
 import ua.nanit.limbo.server.LimboServer;
-import ua.nanit.limbo.server.Logger;
+import ua.nanit.limbo.server.Log;
 import ua.nanit.limbo.util.UuidUtil;
 
 import javax.crypto.Mac;
@@ -114,7 +114,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (channel.isActive()) {
-            Logger.error("Unhandled exception: ", cause);
+            Log.error("Unhandled exception: ", cause);
         }
     }
 
@@ -125,7 +125,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
 
     public void handlePacket(Object packet) {
         if (packet instanceof Packet) {
-            ((Packet)packet).handle(this, server);
+            ((Packet) packet).handle(this, server);
         }
     }
 
@@ -196,6 +196,14 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
             if (PacketSnapshots.PACKET_HEADER_AND_FOOTER != null && clientVersion.moreOrEqual(Version.V1_8))
                 writePacket(PacketSnapshots.PACKET_HEADER_AND_FOOTER);
 
+            if (clientVersion.moreOrEqual(Version.V1_20_3)) {
+                writePacket(PacketSnapshots.PACKET_START_WAITING_CHUNKS);
+
+                for (PacketSnapshot chunk : PacketSnapshots.PACKETS_EMPTY_CHUNKS) {
+                    writePacket(chunk);
+                }
+            }
+
             sendKeepAlive();
         };
 
@@ -211,7 +219,14 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
 
         if (PacketSnapshots.PACKET_PLUGIN_MESSAGE != null)
             writePacket(PacketSnapshots.PACKET_PLUGIN_MESSAGE);
-        writePacket(PacketSnapshots.PACKET_REGISTRY_DATA);
+
+        if (clientVersion.moreOrEqual(Version.V1_20_5)) {
+            for (PacketSnapshot packet : PacketSnapshots.PACKETS_REGISTRY_DATA) {
+                writePacket(packet);
+            }
+        } else {
+            writePacket(PacketSnapshots.PACKET_REGISTRY_DATA);
+        }
 
         sendPacket(PacketSnapshots.PACKET_FINISH_CONFIGURATION);
     }
@@ -269,10 +284,6 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
         encoder.updateState(state);
     }
 
-    public void updateDecoderState(State state) {
-        decoder.updateState(state);
-    }
-
     public void updateEncoderState(State state) {
         encoder.updateState(state);
     }
@@ -284,7 +295,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
     }
 
     public void setAddress(String host) {
-        this.address = new InetSocketAddress(host, ((InetSocketAddress)this.address).getPort());
+        this.address = new InetSocketAddress(host, ((InetSocketAddress) this.address).getPort());
     }
 
     boolean checkBungeeGuardHandshake(String handshake) {
@@ -321,7 +332,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
         setAddress(socketAddressHostname);
         gameProfile.setUuid(uuid);
 
-        Logger.debug("Successfully verified BungeeGuard token");
+        Log.debug("Successfully verified BungeeGuard token");
 
         return true;
     }
@@ -345,7 +356,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
             byte[] mySignature = mac.doFinal(data);
             if (!MessageDigest.isEqual(signature, mySignature))
                 return false;
-        } catch (InvalidKeyException |java.security.NoSuchAlgorithmException e) {
+        } catch (InvalidKeyException | java.security.NoSuchAlgorithmException e) {
             throw new AssertionError(e);
         }
         int version = buf.readVarInt();

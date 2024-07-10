@@ -5,16 +5,16 @@ The main goal of this project is maximum simplicity with a minimum number of sen
 The limbo is empty; there is no ability to set a schematic building since this is not necessary.
 You can send useful information via chat or boss bar.
 
-No plugins, no logs. The server is fully clear. It is only able keep a lot of players while the main server is down.
+The server is fully clear. It is only able to keep a lot of players while the main server is down.
 
 General features:
 * High performance. The server doesn't save or cache any useless (for limbo) data.
-* Doesn't spawn threads per player. Uses a fixed thread pool.
+* Doesn't spawn threads per player. Use a fixed thread pool.
 * Support for **BungeeCord** and **Velocity** info forwarding.
 * Support for [BungeeGuard](https://www.spigotmc.org/resources/79601/) handshake format.
 * Multiple versions support.
 * Fully configurable.
-* Lightweight. App size around **2MB**.
+* Lightweight. App size around **3MB**.
 
 ![](https://i.imgur.com/sT8p1Gz.png)
 
@@ -35,7 +35,8 @@ Symbol `X` means all minor versions.
 - [x] 1.17.X
 - [x] 1.18.X
 - [x] 1.19.X
-- [x] 1.20-1.20.2
+- [x] 1.20.X
+- [x] 1.21
 
 The server **doesn't** support snapshots.
 
@@ -50,14 +51,16 @@ Note that the server also will be closed correctly if you just press `Ctrl+C`.
 
 ### Installation
 
+Required software: JRE 11+
+
 The installation process is simple.
 
 1. Download the latest version of the program [**here**](https://github.com/Nan1t/NanoLimbo/releases).
 2. Put the jar file in the folder you want.
 3. Create a start script as you did for Bukkit or BungeeCord, with a command like this:
    `java -jar NanoLimbo-<version>.jar`
-5. The server will create `settings.yml` file, which is the server configuration.
-6. Configure it as you want and restart the server.
+4. The server will create `settings.yml` file, which is the server configuration. 
+5. Configure it as you want and restart the server.
 
 ### Player info forwarding
 
@@ -75,16 +78,14 @@ Then add your tokens to `tokens` list.
 
 ### Contributing
 
-Feel free to create a pull request if you found some bug or optimization opportunity, or if you want
+Feel free to create a pull request if you find some bug or optimization opportunity, or if you want
 to add some functionality that is suitable for a limbo server and won't significantly load the server.
-
-All PRs should target the `dev` branch to keep the `main` branch stable and clean.
 
 ### Building
 
 Required software:
 
-* JDK 1.8+
+* JDK 11+
 * Gradle 7+ (optional)
 
 To build a minimized jar, go to the project root directory and run in the terminal:

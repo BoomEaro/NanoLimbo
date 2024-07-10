@@ -74,9 +74,9 @@ public final class LimboConfig {
 
     private boolean useTrafficLimits;
     private int maxPacketSize;
-    private int maxPacketsPerSec;
-    private int maxBytesPerSec;
-    
+    private double interval;
+    private double maxPacketRate;
+
     private List<String> onMoveServers;
     private long cooldownTime;
 
@@ -138,9 +138,10 @@ public final class LimboConfig {
         workerGroupSize = conf.node("netty", "threads", "workerGroup").getInt(4);
 
         useTrafficLimits = conf.node("traffic", "enable").getBoolean(false);
+        maxPacketSize = conf.node("traffic", "maxPacketSize").getInt(-1);
+        interval = conf.node("traffic", "interval").getDouble(-1.0);
+        maxPacketRate = conf.node("traffic", "maxPacketRate").getDouble(-1.0);
         maxPacketSize = conf.node("traffic", "packetSize").getInt(-1);
-        maxPacketsPerSec = conf.node("traffic", "packets").getInt(-1);
-        maxBytesPerSec = conf.node("traffic", "bytes").getInt(-1);
 
         onMoveServers = conf.node("onMoveServers").getList(String.class);
         cooldownTime = conf.node("cooldownTime").getLong();
@@ -276,12 +277,12 @@ public final class LimboConfig {
         return maxPacketSize;
     }
 
-    public int getMaxPacketsPerSec() {
-        return maxPacketsPerSec;
+    public double getInterval() {
+        return interval;
     }
 
-    public int getMaxBytesPerSec() {
-        return maxBytesPerSec;
+    public double getMaxPacketRate() {
+        return maxPacketRate;
     }
 
     public List<String> getOnMoveServers() {

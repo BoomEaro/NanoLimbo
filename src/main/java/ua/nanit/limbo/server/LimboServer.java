@@ -72,12 +72,13 @@ public final class LimboServer {
     }
 
     public void start() throws Exception {
-        Logger.info("Starting server...");
-
-        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
-
         config = new LimboConfig(Paths.get("./"));
         config.load();
+
+        Log.setLevel(config.getDebugLevel());
+        Log.info("Starting server...");
+
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
 
         packetHandler = new PacketHandler(this);
         dimensionRegistry = new DimensionRegistry(this);
@@ -92,9 +93,7 @@ public final class LimboServer {
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "NanoLimbo shutdown thread"));
 
-        Logger.info("Server started on %s", config.getAddress());
-
-        Logger.setLevel(config.getDebugLevel());
+        Log.info("Server started on %s", config.getAddress());
 
         commandManager = new CommandManager();
         commandManager.registerAll(this);
@@ -110,12 +109,12 @@ public final class LimboServer {
             bossGroup = new EpollEventLoopGroup(config.getBossGroupSize());
             workerGroup = new EpollEventLoopGroup(config.getWorkerGroupSize());
             channelClass = EpollServerSocketChannel.class;
-            Logger.debug("Using Epoll transport type");
+            Log.debug("Using Epoll transport type");
         } else {
             bossGroup = new NioEventLoopGroup(config.getBossGroupSize());
             workerGroup = new NioEventLoopGroup(config.getWorkerGroupSize());
             channelClass = NioServerSocketChannel.class;
-            Logger.debug("Using Java NIO transport type");
+            Log.debug("Using Java NIO transport type");
         }
 
         new ServerBootstrap()
@@ -132,7 +131,7 @@ public final class LimboServer {
     }
 
     private void stop() {
-        Logger.info("Stopping server...");
+        Log.info("Stopping server...");
 
         if (keepAliveTask != null) {
             keepAliveTask.cancel(true);
@@ -146,7 +145,7 @@ public final class LimboServer {
             workerGroup.shutdownGracefully();
         }
 
-        Logger.info("Server stopped, Goodbye!");
+        Log.info("Server stopped, Goodbye!");
     }
 
 }

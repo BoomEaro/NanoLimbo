@@ -25,7 +25,7 @@ import ua.nanit.limbo.protocol.Packet;
 import ua.nanit.limbo.protocol.PacketSnapshot;
 import ua.nanit.limbo.protocol.registry.State;
 import ua.nanit.limbo.protocol.registry.Version;
-import ua.nanit.limbo.server.Logger;
+import ua.nanit.limbo.server.Log;
 
 public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
@@ -51,7 +51,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
         }
 
         if (packetId == -1) {
-            Logger.warning("Undefined packet class: %s[0x%s] (%d bytes)", packet.getClass().getName(), Integer.toHexString(packetId), msg.readableBytes());
+            Log.warning("Undefined packet class: %s[0x%s] (%d bytes)", packet.getClass().getName(), Integer.toHexString(packetId), msg.readableBytes());
             return;
         }
 
@@ -60,11 +60,11 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
         try {
             packet.encode(msg, version);
 
-            if (Logger.getLevel() >= Logger.Level.DEBUG.getIndex()) {
-                Logger.debug("Sending %s[0x%s] packet (%d bytes)", packet.toString(), Integer.toHexString(packetId), msg.readableBytes());
+            if (Log.isDebug()) {
+                Log.debug("Sending %s[0x%s] packet (%d bytes)", packet.toString(), Integer.toHexString(packetId), msg.readableBytes());
             }
         } catch (Exception e) {
-            Logger.error("Cannot encode packet 0x%s: %s", Integer.toHexString(packetId), e.getMessage());
+            Log.error("Cannot encode packet 0x%s: %s", Integer.toHexString(packetId), e.getMessage());
         }
     }
 

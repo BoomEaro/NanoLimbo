@@ -2,7 +2,7 @@ package ua.nanit.limbo.server.commands;
 
 import ua.nanit.limbo.server.Command;
 import ua.nanit.limbo.server.LimboServer;
-import ua.nanit.limbo.server.Logger;
+import ua.nanit.limbo.server.Log;
 
 public class CmdConn implements Command {
 
@@ -14,7 +14,7 @@ public class CmdConn implements Command {
 
     @Override
     public void execute() {
-        Logger.info("Connections: %d", server.getConnections().getCount());
+        Log.info("Connections: %d", server.getConnections().getCount());
     }
 
     @Override

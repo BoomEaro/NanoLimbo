@@ -17,65 +17,71 @@
 
 package ua.nanit.limbo.server;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class Logger {
+public final class Log {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("hh:mm:ss");
+    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger("Limbo");
     private static int debugLevel = Level.INFO.getIndex();
 
-    private Logger() {}
-
-    public static int getLevel() {
-        return debugLevel;
-    }
+    private Log() {}
 
     public static void info(Object msg, Object... args) {
-        print(Level.INFO, msg, null, args);
+        LOGGER.info(String.format(msg.toString(), args));
     }
 
     public static void debug(Object msg, Object... args) {
-        print(Level.DEBUG, msg, null, args);
+        LOGGER.debug(String.format(msg.toString(), args));
     }
 
     public static void warning(Object msg, Object... args) {
-        print(Level.WARNING, msg, null, args);
+        LOGGER.warn(String.format(msg.toString(), args));
     }
 
     public static void warning(Object msg, Throwable t, Object... args) {
-        print(Level.WARNING, msg, t, args);
+        LOGGER.warn(String.format(msg.toString(), args), t);
     }
 
     public static void error(Object msg, Object... args) {
-        print(Level.ERROR, msg, null, args);
+        LOGGER.error(msg.toString(), args);
     }
 
     public static void error(Object msg, Throwable t, Object... args) {
-        print(Level.ERROR, msg, t, args);
-    }
-
-    public static void print(Level level, Object msg, Throwable t, Object... args) {
-        if (debugLevel >= level.getIndex()) {
-            System.out.printf("%s: %s%n", getPrefix(level), String.format(msg.toString(), args));
-            if (t != null) t.printStackTrace();
-        }
+        LOGGER.error(String.format(msg.toString(), args), t);
     }
 
     public static boolean isDebug() {
         return debugLevel >= Level.DEBUG.getIndex();
     }
 
-    private static String getPrefix(Level level) {
-        return String.format("[%s] [%s]", getTime(), level.getDisplay());
-    }
-
-    private static String getTime() {
-        return LocalTime.now().format(FORMATTER);
-    }
-
     static void setLevel(int level) {
         debugLevel = level;
+
+        Logger logback = getRootLogger();
+
+        if (logback != null) {
+            logback.setLevel(convertLevel(level));
+        }
+    }
+
+    private static Logger getRootLogger() {
+        return (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+    }
+
+    private static ch.qos.logback.classic.Level convertLevel(int level) {
+        switch (level) {
+            case 0:
+                return ch.qos.logback.classic.Level.ERROR;
+            case 1:
+                return ch.qos.logback.classic.Level.WARN;
+            case 2:
+                return ch.qos.logback.classic.Level.INFO;
+            case 3:
+                return ch.qos.logback.classic.Level.DEBUG;
+            default:
+                throw new IllegalStateException("Undefined log level: " + level);
+        }
     }
 
     public enum Level {

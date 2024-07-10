@@ -40,12 +40,12 @@ public final class CommandManager extends Thread {
                 try {
                     handler.execute();
                 } catch (Throwable t) {
-                    Logger.error("Cannot execute command:", t);
+                    Log.error("Cannot execute command:", t);
                 }
                 continue;
             }
 
-            Logger.info("Unknown command. Type \"help\" to get commands list");
+            Log.info("Unknown command. Type \"help\" to get commands list");
         }
     }
 

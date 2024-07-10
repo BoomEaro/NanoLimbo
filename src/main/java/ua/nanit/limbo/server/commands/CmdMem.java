@@ -1,7 +1,7 @@
 package ua.nanit.limbo.server.commands;
 
 import ua.nanit.limbo.server.Command;
-import ua.nanit.limbo.server.Logger;
+import ua.nanit.limbo.server.Log;
 
 public class CmdMem implements Command {
 
@@ -14,11 +14,11 @@ public class CmdMem implements Command {
         long free = runtime.freeMemory() / mb;
         long max = runtime.maxMemory() / mb;
 
-        Logger.info("Memory usage:");
-        Logger.info("Used: %d MB", used);
-        Logger.info("Total: %d MB", total);
-        Logger.info("Free: %d MB", free);
-        Logger.info("Max: %d MB", max);
+        Log.info("Memory usage:");
+        Log.info("Used: %d MB", used);
+        Log.info("Total: %d MB", total);
+        Log.info("Free: %d MB", free);
+        Log.info("Max: %d MB", max);
     }
 
     @Override

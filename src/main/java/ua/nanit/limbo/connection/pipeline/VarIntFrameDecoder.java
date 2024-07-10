@@ -20,7 +20,7 @@ package ua.nanit.limbo.connection.pipeline;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import ua.nanit.limbo.server.Logger;
+import ua.nanit.limbo.server.Log;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class VarIntFrameDecoder extends ByteToMessageDecoder {
             int readVarInt = reader.getReadVarInt();
             int bytesRead = reader.getBytesRead();
             if (readVarInt < 0) {
-                Logger.error("[VarIntFrameDecoder] Bad data length");
+                Log.error("[VarIntFrameDecoder] Bad data length");
             } else if (readVarInt == 0) {
                 in.readerIndex(varIntEnd + 1);
             } else {
@@ -54,7 +54,7 @@ public class VarIntFrameDecoder extends ByteToMessageDecoder {
                 }
             }
         } else if (reader.getResult() == VarIntByteDecoder.DecodeResult.TOO_BIG) {
-            Logger.error("[VarIntFrameDecoder] Too big data");
+            Log.error("[VarIntFrameDecoder] Too big data");
         }
     }
 }

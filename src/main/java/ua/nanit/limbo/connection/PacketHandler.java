@@ -31,7 +31,7 @@ import ua.nanit.limbo.protocol.packets.status.PacketStatusPing;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusRequest;
 import ua.nanit.limbo.protocol.packets.status.PacketStatusResponse;
 import ua.nanit.limbo.server.LimboServer;
-import ua.nanit.limbo.server.Logger;
+import ua.nanit.limbo.server.Log;
 import ua.nanit.limbo.util.UuidUtil;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -48,7 +48,7 @@ public class PacketHandler {
         conn.updateVersion(packet.getVersion());
         conn.updateState(packet.getNextState());
 
-        Logger.debug("Pinged from %s [%s]", conn.getAddress(),
+        Log.debug("Pinged from %s [%s]", conn.getAddress(),
                 conn.getClientVersion().toString());
 
         if (server.getConfig().getInfoForwarding().isLegacy()) {
