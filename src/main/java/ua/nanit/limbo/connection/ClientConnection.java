@@ -164,10 +164,6 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
             if (clientVersion.moreOrEqual(Version.V1_19_3))
                 writePacket(PacketSnapshots.PACKET_SPAWN_POSITION);
 
-            for (PacketSnapshot packetSnapshot : PacketSnapshots.PACKETS_CHUNKS) {
-                writePacket(packetSnapshot);
-            }
-
             if (server.getConfig().isUsePlayerList() || clientVersion.equals(Version.V1_16_4))
                 writePacket(PacketSnapshots.PACKET_PLAYER_INFO);
 
