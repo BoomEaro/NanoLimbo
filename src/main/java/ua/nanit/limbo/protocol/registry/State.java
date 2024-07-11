@@ -157,7 +157,9 @@ public enum State {
                     map(0x14, V1_19_1, V1_19_1),
                     map(0x13, V1_19_3, V1_19_3),
                     map(0x14, V1_19_4, V1_20),
-                    map(0x16, V1_20_2, V1_20_2)
+                    map(0x16, V1_20_2, V1_20_2),
+                    map(0x17, V1_20_3, V1_20_3),
+                    map(0x1A, V1_20_5, V1_21)
             );
             serverBound.register(PacketPlayerPositionAndLook::new,
                     map(0x06, V1_7_2, V1_8),
@@ -172,7 +174,9 @@ public enum State {
                     map(0x15, V1_19_1, V1_19_1),
                     map(0x14, V1_19_3, V1_19_3),
                     map(0x15, V1_19_4, V1_20),
-                    map(0x17, V1_20_2, V1_20_2)
+                    map(0x17, V1_20_2, V1_20_2),
+                    map(0x18, V1_20_3, V1_20_3),
+                    map(0x1B, V1_20_5, V1_21)
             );
 
             clientBound.register(PacketDeclareCommands::new,
@@ -379,10 +383,6 @@ public enum State {
                     map(0x22, V1_20_5, V1_21)
             );
             clientBound.register(PacketEmptyChunk::new,
-                    map(0x25, V1_20_3, V1_20_3),
-                    map(0x27, V1_20_5, V1_21)
-            );
-            clientBound.register(PacketEmptyChunk::new,
                     map(0x21, V1_8, V1_8),
                     map(0x20, V1_9, V1_12_2),
                     map(0x22, V1_13, V1_13_2),
@@ -395,7 +395,8 @@ public enum State {
                     map(0x21, V1_19_1, V1_19_1),
                     map(0x20, V1_19_3, V1_19_3),
                     map(0x24, V1_19_4, V1_20),
-                    map(0x25, V1_20_2, V1_20_2)
+                    map(0x25, V1_20_2, V1_20_3),
+                    map(0x27, V1_20_5, V1_21)
             );
         }
     };

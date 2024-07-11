@@ -19,10 +19,12 @@ package ua.nanit.limbo.connection;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import io.netty.buffer.ByteBufAllocator;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
 import ua.nanit.limbo.LimboConstants;
+import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.PacketSnapshot;
 import ua.nanit.limbo.protocol.packets.configuration.PacketFinishConfiguration;
 import ua.nanit.limbo.protocol.packets.configuration.PacketRegistryData;
@@ -74,7 +76,8 @@ public final class PacketSnapshots {
     public static List<PacketSnapshot> PACKETS_EMPTY_CHUNKS;
     public static PacketSnapshot PACKET_START_WAITING_CHUNKS;
 
-    private PacketSnapshots() { }
+    private PacketSnapshots() {
+    }
 
     public static void initPackets(LimboServer server) {
         final String username = server.getConfig().getPingData().getVersion();
@@ -143,13 +146,13 @@ public final class PacketSnapshots {
             PACKET_HEADER_AND_FOOTER = PacketSnapshot.of(header);
         }
 
-        if (server.getConfig().isUseBrandName()){
+        if (server.getConfig().isUseBrandName()) {
             PacketPluginMessage pluginMessage = new PacketPluginMessage();
             String brand = LimboConstants.BRAND_CHANNEL;
             pluginMessage.setChannel(brand, brand);
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF(server.getConfig().getBrandName());
-            pluginMessage.setMessage(out.toByteArray());
+            ByteMessage byteMessage = new ByteMessage(ByteBufAllocator.DEFAULT.heapBuffer());
+            byteMessage.writeString(server.getConfig().getBrandName());
+            pluginMessage.setMessage(byteMessage.toByteArray());
             PACKET_PLUGIN_MESSAGE = PacketSnapshot.of(pluginMessage);
         }
 
@@ -250,7 +253,7 @@ public final class PacketSnapshots {
             out.writeUTF(serverName);
             pluginMessage.setMessage(out.toByteArray());
 
-            pluginMessages.add( PacketSnapshot.of(pluginMessage));
+            pluginMessages.add(PacketSnapshot.of(pluginMessage));
         }
         PACKET_SERVER_TELEPORTS = pluginMessages;
 
