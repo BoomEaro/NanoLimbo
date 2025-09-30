@@ -26,6 +26,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import ua.nanit.limbo.connection.pipeline.PacketDecoder;
 import ua.nanit.limbo.connection.pipeline.PacketEncoder;
@@ -84,8 +85,9 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
         return gameProfile.getUsername();
     }
 
+    @SneakyThrows
     @Override
-    public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) {
         if (state.equals(State.PLAY) || state.equals(State.CONFIGURATION)) {
             server.getConnections().removeConnection(this);
         }

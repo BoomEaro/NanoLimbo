@@ -18,6 +18,7 @@
 package ua.nanit.limbo.server.data;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -62,8 +63,9 @@ public class InfoForwarding {
     }
 
     public static class Serializer implements TypeSerializer<InfoForwarding> {
+        @SneakyThrows
         @Override
-        public InfoForwarding deserialize(java.lang.reflect.Type type, ConfigurationNode node) throws SerializationException {
+        public InfoForwarding deserialize(java.lang.reflect.Type type, ConfigurationNode node) {
             InfoForwarding forwarding = new InfoForwarding();
 
             try {

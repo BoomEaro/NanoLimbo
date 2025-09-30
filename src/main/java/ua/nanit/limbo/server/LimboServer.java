@@ -26,6 +26,7 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import ua.nanit.limbo.configuration.LimboConfig;
 import ua.nanit.limbo.connection.ClientChannelInitializer;
 import ua.nanit.limbo.connection.ClientConnection;
@@ -52,7 +53,8 @@ public final class LimboServer {
 
     private CommandManager commandManager;
 
-    public void start() throws Exception {
+    @SneakyThrows
+    public void start() {
         config = new LimboConfig(Paths.get("./"));
         config.load();
 

@@ -22,6 +22,7 @@ import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import net.kyori.adventure.nbt.*;
 import ua.nanit.limbo.connection.PlayerPublicKey;
 import ua.nanit.limbo.protocol.registry.Version;
@@ -582,18 +583,21 @@ public class ByteMessage extends ByteBuf {
         return buf.getBytes(index, dst);
     }
 
+    @SneakyThrows
     @Override
-    public ByteBuf getBytes(int index, OutputStream out, int length) throws IOException {
+    public ByteBuf getBytes(int index, OutputStream out, int length) {
         return buf.getBytes(index, out, length);
     }
 
+    @SneakyThrows
     @Override
-    public int getBytes(int index, GatheringByteChannel out, int length) throws IOException {
+    public int getBytes(int index, GatheringByteChannel out, int length) {
         return buf.getBytes(index, out, length);
     }
 
+    @SneakyThrows
     @Override
-    public int getBytes(int index, FileChannel out, long position, int length) throws IOException {
+    public int getBytes(int index, FileChannel out, long position, int length) {
         return buf.getBytes(index, out, position, length);
     }
 
@@ -707,18 +711,21 @@ public class ByteMessage extends ByteBuf {
         return buf.setBytes(index, src);
     }
 
+    @SneakyThrows
     @Override
-    public int setBytes(int index, InputStream in, int length) throws IOException {
+    public int setBytes(int index, InputStream in, int length) {
         return buf.setBytes(index, in, length);
     }
 
+    @SneakyThrows
     @Override
-    public int setBytes(int index, ScatteringByteChannel in, int length) throws IOException {
+    public int setBytes(int index, ScatteringByteChannel in, int length) {
         return buf.setBytes(index, in, length);
     }
 
+    @SneakyThrows
     @Override
-    public int setBytes(int index, FileChannel in, long position, int length) throws IOException {
+    public int setBytes(int index, FileChannel in, long position, int length) {
         return buf.setBytes(index, in, position, length);
     }
 
@@ -887,13 +894,15 @@ public class ByteMessage extends ByteBuf {
         return buf.readBytes(dst);
     }
 
+    @SneakyThrows
     @Override
-    public ByteBuf readBytes(OutputStream out, int length) throws IOException {
+    public ByteBuf readBytes(OutputStream out, int length) {
         return buf.readBytes(out, length);
     }
 
+    @SneakyThrows
     @Override
-    public int readBytes(GatheringByteChannel out, int length) throws IOException {
+    public int readBytes(GatheringByteChannel out, int length) {
         return buf.readBytes(out, length);
     }
 
@@ -902,8 +911,9 @@ public class ByteMessage extends ByteBuf {
         return buf.readCharSequence(length, charset);
     }
 
+    @SneakyThrows
     @Override
-    public int readBytes(FileChannel out, long position, int length) throws IOException {
+    public int readBytes(FileChannel out, long position, int length) {
         return buf.readBytes(out, position, length);
     }
 
@@ -1017,18 +1027,21 @@ public class ByteMessage extends ByteBuf {
         return buf.writeBytes(src);
     }
 
+    @SneakyThrows
     @Override
-    public int writeBytes(InputStream in, int length) throws IOException {
+    public int writeBytes(InputStream in, int length) {
         return buf.writeBytes(in, length);
     }
 
+    @SneakyThrows
     @Override
-    public int writeBytes(ScatteringByteChannel in, int length) throws IOException {
+    public int writeBytes(ScatteringByteChannel in, int length) {
         return buf.writeBytes(in, length);
     }
 
+    @SneakyThrows
     @Override
-    public int writeBytes(FileChannel in, long position, int length) throws IOException {
+    public int writeBytes(FileChannel in, long position, int length) {
         return buf.writeBytes(in, position, length);
     }
 

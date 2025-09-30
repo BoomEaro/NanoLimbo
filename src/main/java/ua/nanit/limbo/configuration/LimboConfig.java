@@ -19,6 +19,7 @@ package ua.nanit.limbo.configuration;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
@@ -31,7 +32,6 @@ import ua.nanit.limbo.server.data.Title;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketAddress;
 import java.nio.file.Files;
@@ -82,7 +82,8 @@ public final class LimboConfig {
     private double maxPacketRate;
     private double maxPacketBytesRate;
 
-    public void load() throws Exception {
+    @SneakyThrows
+    public void load() {
         ConfigurationOptions options = ConfigurationOptions.defaults().serializers(getSerializers());
         YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
                 .source(this::getReader)
@@ -143,7 +144,8 @@ public final class LimboConfig {
         maxPacketBytesRate = conf.node("traffic", "maxPacketBytesRate").getDouble(-1.0);
     }
 
-    private BufferedReader getReader() throws IOException {
+    @SneakyThrows
+    private BufferedReader getReader() {
         String name = "settings.yml";
         Path filePath = Paths.get(root.toString(), name);
 

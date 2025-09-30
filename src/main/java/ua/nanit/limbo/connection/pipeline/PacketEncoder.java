@@ -20,6 +20,7 @@ package ua.nanit.limbo.connection.pipeline;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import lombok.SneakyThrows;
 import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.Packet;
 import ua.nanit.limbo.protocol.PacketSnapshot;
@@ -40,8 +41,9 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
         updateState(this.state);
     }
 
+    @SneakyThrows
     @Override
-    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) {
         if (registry == null) return;
 
         ByteMessage msg = new ByteMessage(out);

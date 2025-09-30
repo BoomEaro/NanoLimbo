@@ -19,13 +19,13 @@ package ua.nanit.limbo.world;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
 import ua.nanit.limbo.server.LimboServer;
 import ua.nanit.limbo.server.Log;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 @RequiredArgsConstructor
@@ -70,7 +70,8 @@ public final class DimensionRegistry {
     private CompoundBinaryTag tags_1_21_6;
     private CompoundBinaryTag tags_1_21_7;
 
-    public void load(String def) throws IOException {
+    @SneakyThrows
+    public void load(String def) {
         codec_1_16 = readCompoundBinaryTag("/dimension/codec_1_16.nbt");
         codec_1_16_2 = readCompoundBinaryTag("/dimension/codec_1_16_2.nbt");
         codec_1_17 = readCompoundBinaryTag("/dimension/codec_1_17.nbt");
@@ -139,7 +140,8 @@ public final class DimensionRegistry {
         return new Dimension(0, "minecraft:overworld", overWorld);
     }
 
-    private CompoundBinaryTag readCompoundBinaryTag(String resPath) throws IOException {
+    @SneakyThrows
+    private CompoundBinaryTag readCompoundBinaryTag(String resPath) {
         try (InputStream in = server.getClass().getResourceAsStream(resPath)) {
             return BinaryTagIO.unlimitedReader().read(in, BinaryTagIO.Compression.GZIP);
         }

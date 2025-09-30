@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import lombok.SneakyThrows;
 import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.Packet;
 import ua.nanit.limbo.protocol.registry.State;
@@ -42,8 +43,9 @@ public class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         updateState(this.state);
     }
 
+    @SneakyThrows
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) {
         if (!ctx.channel().isActive() || mappings == null) return;
 
         ByteMessage msg = new ByteMessage(buf);

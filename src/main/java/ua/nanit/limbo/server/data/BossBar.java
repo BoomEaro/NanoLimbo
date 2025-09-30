@@ -20,6 +20,7 @@ package ua.nanit.limbo.server.data;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -67,8 +68,9 @@ public class BossBar {
     }
 
     public static class Serializer implements TypeSerializer<BossBar> {
+        @SneakyThrows
         @Override
-        public BossBar deserialize(Type type, ConfigurationNode node) throws SerializationException {
+        public BossBar deserialize(Type type, ConfigurationNode node) {
             BossBar bossBar = new BossBar();
 
             bossBar.setText(NbtMessageUtil.create(Colors.of(node.node("text").getString(""))));

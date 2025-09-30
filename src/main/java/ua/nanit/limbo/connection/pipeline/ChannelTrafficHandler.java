@@ -3,6 +3,7 @@ package ua.nanit.limbo.connection.pipeline;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import ua.nanit.limbo.server.Log;
 
@@ -22,8 +23,9 @@ public class ChannelTrafficHandler extends ChannelInboundHandlerAdapter {
         this.packetBucket = (interval > 0.0 && (maxPacketRate > 0.0 || maxPacketBytesRate > 0.0)) ? new PacketBucket(interval * 1000.0, 150) : null;
     }
 
+    @SneakyThrows
     @Override
-    public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
+    public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) {
         if (msg instanceof ByteBuf in) {
             int bytes = in.readableBytes();
 
