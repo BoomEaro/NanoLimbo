@@ -20,14 +20,14 @@ package ua.nanit.limbo.server;
 import ch.qos.logback.classic.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import org.slf4j.LoggerFactory;
 
-public final class Log {
+@UtilityClass
+public class Log {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger("Limbo");
     private static int debugLevel = Level.INFO.getIndex();
-
-    private Log() {}
 
     public static void info(Object msg, Object... args) {
         LOGGER.info(String.format(msg.toString(), args));

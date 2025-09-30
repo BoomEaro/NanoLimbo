@@ -1,6 +1,7 @@
 package ua.nanit.limbo.util;
 
 import com.google.gson.*;
+import lombok.experimental.UtilityClass;
 import net.kyori.adventure.nbt.*;
 import ua.nanit.limbo.protocol.NbtMessage;
 
@@ -9,9 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public final class NbtMessageUtil {
-
-    private NbtMessageUtil() {}
+@UtilityClass
+public class NbtMessageUtil {
 
     public static NbtMessage create(String json) {
         CompoundBinaryTag compoundBinaryTag = (CompoundBinaryTag) fromJson(JsonParser.parseString(json));

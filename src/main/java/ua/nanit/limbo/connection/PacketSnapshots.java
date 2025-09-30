@@ -18,6 +18,7 @@
 package ua.nanit.limbo.connection;
 
 import io.netty.buffer.ByteBufAllocator;
+import lombok.experimental.UtilityClass;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.IntBinaryTag;
@@ -40,7 +41,8 @@ import ua.nanit.limbo.util.UuidUtil;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public final class PacketSnapshots {
+@UtilityClass
+public class PacketSnapshots {
 
     public static PacketSnapshot PACKET_LOGIN_SUCCESS;
     public static PacketSnapshot PACKET_JOIN_GAME;
@@ -83,8 +85,6 @@ public final class PacketSnapshots {
 
     public static List<PacketSnapshot> PACKETS_EMPTY_CHUNKS;
     public static PacketSnapshot PACKET_START_WAITING_CHUNKS;
-
-    private PacketSnapshots() {}
 
     public static void initPackets(LimboServer server) {
         final String username = server.getConfig().getPingData().getVersion();

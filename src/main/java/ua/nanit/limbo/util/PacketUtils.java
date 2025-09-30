@@ -1,14 +1,14 @@
 package ua.nanit.limbo.util;
 
+import lombok.experimental.UtilityClass;
 import ua.nanit.limbo.protocol.Packet;
 import ua.nanit.limbo.protocol.registry.State;
 import ua.nanit.limbo.protocol.registry.Version;
 
 import java.util.Locale;
 
-public final class PacketUtils {
-
-    private PacketUtils() {}
+@UtilityClass
+public class PacketUtils {
 
     public static String toPacketId(int packetId) {
         return "0x" + Integer.toHexString(packetId).toUpperCase(Locale.ROOT);

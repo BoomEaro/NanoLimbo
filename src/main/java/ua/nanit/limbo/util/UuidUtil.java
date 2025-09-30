@@ -17,12 +17,13 @@
 
 package ua.nanit.limbo.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-public final class UuidUtil {
-
-    private UuidUtil() {}
+@UtilityClass
+public class UuidUtil {
 
     public static UUID getOfflineModeUuid(String username) {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + username)
