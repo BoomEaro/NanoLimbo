@@ -5,7 +5,7 @@ plugins {
 }
 
 group "ua.nanit"
-version "1.9.9"
+version "1.9.10"
 
 compileJava {
     options.encoding = "UTF-8"
