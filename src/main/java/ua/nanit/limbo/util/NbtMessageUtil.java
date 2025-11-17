@@ -1,6 +1,6 @@
 package ua.nanit.limbo.util;
 
-import com.google.gson.*;
+import com.alibaba.fastjson2.*;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.nbt.*;
 import ua.nanit.limbo.protocol.NbtMessage;
@@ -14,45 +14,41 @@ import java.util.Map;
 public class NbtMessageUtil {
 
     public static NbtMessage create(String json) {
-        CompoundBinaryTag compoundBinaryTag = (CompoundBinaryTag) fromJson(JsonParser.parseString(json));
+        CompoundBinaryTag compoundBinaryTag = (CompoundBinaryTag) fromJson(JSON.parse(json));
 
         return new NbtMessage(json, compoundBinaryTag);
     }
 
-    public static BinaryTag fromJson(JsonElement json) {
-        if (json instanceof JsonPrimitive jsonPrimitive) {
-            if (jsonPrimitive.isNumber()) {
-                Number number = json.getAsNumber();
+    public static BinaryTag fromJson(Object json) {
+        if (json instanceof String) {
+            return StringBinaryTag.stringBinaryTag((String) json);
+        } else if (json instanceof Number) {
+            Number number = (Number) json;
 
-                if (number instanceof Byte) {
-                    return ByteBinaryTag.byteBinaryTag((Byte) number);
-                } else if (number instanceof Short) {
-                    return ShortBinaryTag.shortBinaryTag((Short) number);
-                } else if (number instanceof Integer) {
-                    return IntBinaryTag.intBinaryTag((Integer) number);
-                } else if (number instanceof Long) {
-                    return LongBinaryTag.longBinaryTag((Long) number);
-                } else if (number instanceof Float) {
-                    return FloatBinaryTag.floatBinaryTag((Float) number);
-                } else if (number instanceof Double) {
-                    return DoubleBinaryTag.doubleBinaryTag((Double) number);
-                }
-            } else if (jsonPrimitive.isString()) {
-                return StringBinaryTag.stringBinaryTag(jsonPrimitive.getAsString());
-            } else if (jsonPrimitive.isBoolean()) {
-                return ByteBinaryTag.byteBinaryTag(jsonPrimitive.getAsBoolean() ? (byte) 1 : (byte) 0);
-            } else {
-                throw new IllegalArgumentException("Unknown JSON primitive: " + jsonPrimitive);
+            if (number instanceof Byte) {
+                return ByteBinaryTag.byteBinaryTag((Byte) number);
+            } else if (number instanceof Short) {
+                return ShortBinaryTag.shortBinaryTag((Short) number);
+            } else if (number instanceof Integer) {
+                return IntBinaryTag.intBinaryTag((Integer) number);
+            } else if (number instanceof Long) {
+                return LongBinaryTag.longBinaryTag((Long) number);
+            } else if (number instanceof Float) {
+                return FloatBinaryTag.floatBinaryTag((Float) number);
+            } else if (number instanceof Double) {
+                return DoubleBinaryTag.doubleBinaryTag((Double) number);
             }
-        } else if (json instanceof JsonObject) {
+        } else if (json instanceof Boolean) {
+            return ByteBinaryTag.byteBinaryTag((Boolean) json ? (byte) 1 : (byte) 0);
+        } else if (json instanceof JSONObject) {
             CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder();
-            for (Map.Entry<String, JsonElement> property : ((JsonObject) json).entrySet()) {
+            for (Map.Entry<String, Object> property : ((JSONObject) json).entrySet()) {
                 builder.put(property.getKey(), fromJson(property.getValue()));
             }
 
             return builder.build();
-        } else if (json instanceof JsonArray) {
-            List<JsonElement> jsonArray = ((JsonArray) json).asList();
+        } else if (json instanceof JSONArray) {
+            JSONArray jsonArray = (JSONArray) json;
 
             if (jsonArray.isEmpty()) {
                 return ListBinaryTag.listBinaryTag(EndBinaryTag.endBinaryTag().type(), Collections.emptyList());
@@ -67,28 +63,28 @@ public class NbtMessageUtil {
             if (listType.equals(tagByteType)) {
                 byte[] bytes = new byte[jsonArray.size()];
                 for (int i = 0; i < bytes.length; i++) {
-                    bytes[i] = (Byte) jsonArray.get(i).getAsNumber();
+                    bytes[i] = ((Number) jsonArray.get(i)).byteValue();
                 }
 
                 listTag = ByteArrayBinaryTag.byteArrayBinaryTag(bytes);
             } else if (listType.equals(tagIntType)) {
                 int[] ints = new int[jsonArray.size()];
                 for (int i = 0; i < ints.length; i++) {
-                    ints[i] = (Integer) jsonArray.get(i).getAsNumber();
+                    ints[i] = ((Number) jsonArray.get(i)).intValue();
                 }
 
                 listTag = IntArrayBinaryTag.intArrayBinaryTag(ints);
             } else if (listType.equals(tagLongType)) {
                 long[] longs = new long[jsonArray.size()];
                 for (int i = 0; i < longs.length; i++) {
-                    longs[i] = (Long) jsonArray.get(i).getAsNumber();
+                    longs[i] = ((Number) jsonArray.get(i)).longValue();
                 }
 
                 listTag = LongArrayBinaryTag.longArrayBinaryTag(longs);
             } else {
                 List<BinaryTag> tagItems = new ArrayList<>(jsonArray.size());
 
-                for (JsonElement jsonEl : jsonArray) {
+                for (Object jsonEl : jsonArray) {
                     BinaryTag subTag = fromJson(jsonEl);
                     if (subTag.type() != listType) {
                         throw new IllegalArgumentException("Cannot convert mixed JsonArray to Tag");
@@ -101,7 +97,7 @@ public class NbtMessageUtil {
             }
 
             return listTag;
-        } else if (json instanceof JsonNull) {
+        } else if (json == null) {
             return EndBinaryTag.endBinaryTag();
         }
 

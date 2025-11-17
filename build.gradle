@@ -1,7 +1,7 @@
 plugins {
     id "java"
-    id "com.gradleup.shadow" version "8.3.9"
-    id "com.github.gmazzo.buildconfig" version "5.6.8"
+    id "com.gradleup.shadow" version "9.2.2"
+    id "com.github.gmazzo.buildconfig" version "5.7.1"
 }
 
 group "ua.nanit"
@@ -24,13 +24,13 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:1.5.18"
     implementation "org.spongepowered:configurate-yaml:4.2.0"
 
-    implementation "io.netty:netty-handler:4.2.6.Final"
-    implementation "io.netty:netty-transport-native-epoll:4.2.6.Final:linux-x86_64"
-    implementation "io.netty:netty-transport-native-epoll:4.2.6.Final:linux-aarch_64"
+    implementation "io.netty:netty-handler:4.2.7.Final"
+    implementation "io.netty:netty-transport-native-epoll:4.2.7.Final:linux-x86_64"
+    implementation "io.netty:netty-transport-native-epoll:4.2.7.Final:linux-aarch_64"
 
-    implementation "net.kyori:adventure-nbt:4.24.0"
+    implementation "net.kyori:adventure-nbt:4.25.0"
     implementation "com.grack:nanojson:1.10"
-    implementation "com.google.code.gson:gson:2.13.2"
+    implementation "com.alibaba.fastjson2:fastjson2:2.0.60"
 
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
