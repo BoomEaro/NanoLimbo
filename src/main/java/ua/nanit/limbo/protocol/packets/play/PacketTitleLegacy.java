@@ -22,7 +22,7 @@ import lombok.Setter;
 import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.PacketOut;
 import ua.nanit.limbo.protocol.registry.Version;
-import ua.nanit.limbo.server.data.Title;
+import ua.nanit.limbo.configuration.data.Title;
 
 @Setter
 public class PacketTitleLegacy implements PacketOut {

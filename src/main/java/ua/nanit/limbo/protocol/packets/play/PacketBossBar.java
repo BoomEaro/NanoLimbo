@@ -18,10 +18,10 @@
 package ua.nanit.limbo.protocol.packets.play;
 
 import lombok.Setter;
+import ua.nanit.limbo.configuration.data.BossBar;
 import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.PacketOut;
 import ua.nanit.limbo.protocol.registry.Version;
-import ua.nanit.limbo.server.data.BossBar;
 
 import java.util.UUID;
 
@@ -40,6 +40,10 @@ public class PacketBossBar implements PacketOut {
         msg.writeUuid(uuid);
         msg.writeVarInt(0); // Create bossbar
         msg.writeNbtMessage(bossBar.getText(), version);
+        if (bossBar.getHealth() < 0 || bossBar.getHealth() > 1) {
+            throw new IllegalStateException("BossBar health value must be between 0.0 and 1.0");
+        }
+
         msg.writeFloat(bossBar.getHealth());
         msg.writeVarInt(bossBar.getColor().getIndex());
         msg.writeVarInt(bossBar.getDivision().getIndex());

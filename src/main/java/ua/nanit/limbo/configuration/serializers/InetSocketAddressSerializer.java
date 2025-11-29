@@ -15,23 +15,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ua.nanit.limbo.configuration;
+package ua.nanit.limbo.configuration.serializers;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
-public class SocketAddressSerializer implements TypeSerializer<SocketAddress> {
+public class InetSocketAddressSerializer implements TypeSerializer<InetSocketAddress> {
 
     @Override
-    public SocketAddress deserialize(Type type, ConfigurationNode node) {
+    public InetSocketAddress deserialize(Type type, ConfigurationNode node) throws SerializationException {
         String ip = node.node("ip").getString();
         int port = node.node("port").getInt();
-        SocketAddress address;
+        InetSocketAddress address;
 
         if (ip == null || ip.isEmpty()) {
             address = new InetSocketAddress(port);
@@ -43,5 +43,13 @@ public class SocketAddressSerializer implements TypeSerializer<SocketAddress> {
     }
 
     @Override
-    public void serialize(Type type, @Nullable SocketAddress obj, ConfigurationNode node) {}
+    public void serialize(Type type, @Nullable InetSocketAddress obj, ConfigurationNode node) throws SerializationException {
+        if (obj == null) {
+            node.raw(null);
+            return;
+        }
+
+        node.node("ip").set(String.class, obj.getAddress().getHostAddress());
+        node.node("port").set(Integer.class, obj.getPort());
+    }
 }

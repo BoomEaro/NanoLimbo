@@ -48,7 +48,7 @@ public class PacketHandler {
         Log.debug("Pinged from %s [%s]", conn.getAddress(),
                 conn.getClientVersion().toString());
 
-        if (server.getConfig().getInfoForwarding().isLegacy()) {
+        if (server.getConfiguration().getInfoForwarding().isLegacy()) {
             String[] split = packet.getHost().split("\00");
 
             if (split.length == 3 || split.length == 4) {
@@ -57,7 +57,7 @@ public class PacketHandler {
             } else {
                 conn.disconnectLogin("You've enabled player info forwarding. You need to connect with proxy");
             }
-        } else if (server.getConfig().getInfoForwarding().isBungeeGuard()) {
+        } else if (server.getConfiguration().getInfoForwarding().isBungeeGuard()) {
             if (!conn.checkBungeeGuardHandshake(packet.getHost())) {
                 conn.disconnectLogin("Invalid BungeeGuard token or handshake format");
             }
@@ -73,8 +73,8 @@ public class PacketHandler {
     }
 
     public void handle(ClientConnection conn, PacketLoginStart packet) {
-        if (server.getConfig().getMaxPlayers() > 0 &&
-                server.getConnections().getCount() >= server.getConfig().getMaxPlayers()) {
+        if (server.getConfiguration().getMaxPlayers() > 0 &&
+                server.getConnections().getCount() >= server.getConfiguration().getMaxPlayers()) {
             conn.disconnectLogin("Too many players connected");
             return;
         }
@@ -84,7 +84,7 @@ public class PacketHandler {
             return;
         }
 
-        if (server.getConfig().getInfoForwarding().isModern()) {
+        if (server.getConfiguration().getInfoForwarding().isModern()) {
             int loginId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
             PacketLoginPluginRequest request = new PacketLoginPluginRequest();
 
@@ -97,7 +97,7 @@ public class PacketHandler {
             return;
         }
 
-        if (!server.getConfig().getInfoForwarding().isModern()) {
+        if (!server.getConfiguration().getInfoForwarding().isModern()) {
             conn.getGameProfile().setUsername(packet.getUsername());
             conn.getGameProfile().setUuid(UuidUtil.getOfflineModeUuid(packet.getUsername()));
         }
@@ -106,7 +106,7 @@ public class PacketHandler {
     }
 
     public void handle(ClientConnection conn, PacketLoginPluginResponse packet) {
-        if (server.getConfig().getInfoForwarding().isModern()
+        if (server.getConfiguration().getInfoForwarding().isModern()
                 && packet.getMessageId() == conn.getVelocityLoginMessageId()) {
 
             if (!packet.isSuccessful() || packet.getData() == null) {

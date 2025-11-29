@@ -15,36 +15,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ua.nanit.limbo.server.data;
+package ua.nanit.limbo.configuration.serializers;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
-import ua.nanit.limbo.util.Colors;
 
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
-@Getter
-@Setter
-public class PingData {
+public class ByteArraySerializer implements TypeSerializer<byte[]> {
 
-    private String version;
-    private String description;
-    private int protocol;
+    @Override
+    public byte[] deserialize(Type type, ConfigurationNode node) throws SerializationException {
+        String value = node.getString("");
 
-    public static class Serializer implements TypeSerializer<PingData> {
-        @Override
-        public PingData deserialize(Type type, ConfigurationNode node) {
-            PingData pingData = new PingData();
-            pingData.setDescription(Colors.of(node.node("description").getString("")));
-            pingData.setVersion(Colors.of(node.node("version").getString("")));
-            pingData.setProtocol(node.node("protocol").getInt(-1));
-            return pingData;
+        return value.getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public void serialize(Type type, @Nullable byte[] obj, ConfigurationNode node) throws SerializationException {
+        if (obj == null) {
+            node.raw(null);
+            return;
         }
 
-        @Override
-        public void serialize(Type type, @Nullable PingData obj, ConfigurationNode node) {}
+        node.set(String.class, new String(obj, StandardCharsets.UTF_8));
     }
 }

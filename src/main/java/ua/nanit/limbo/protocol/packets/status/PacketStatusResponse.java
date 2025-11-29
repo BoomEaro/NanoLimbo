@@ -18,6 +18,8 @@
 package ua.nanit.limbo.protocol.packets.status;
 
 import lombok.AllArgsConstructor;
+import ua.nanit.limbo.configuration.LimboConfiguration;
+import ua.nanit.limbo.configuration.data.PingData;
 import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.PacketOut;
 import ua.nanit.limbo.protocol.registry.Version;
@@ -30,27 +32,30 @@ public class PacketStatusResponse implements PacketOut {
 
     private LimboServer server;
 
-    public PacketStatusResponse() { }
+    public PacketStatusResponse() {
+    }
 
     @Override
     public void encode(ByteMessage msg, Version version) {
+        LimboConfiguration configuration = this.server.getConfiguration();
+        PingData pingData = configuration.getPing();
         int protocol;
-        int staticProtocol =  server.getConfig().getPingData().getProtocol();
+        int staticProtocol = pingData.getProtocol();
 
         if (staticProtocol > 0) {
             protocol = staticProtocol;
         } else {
-            protocol = server.getConfig().getInfoForwarding().isNone()
+            protocol = configuration.getInfoForwarding().isNone()
                     ? version.getProtocolNumber()
                     : Version.getMax().getProtocolNumber();
         }
 
-        String ver = server.getConfig().getPingData().getVersion();
-        String desc = server.getConfig().getPingData().getDescription();
+        String ver = pingData.getVersion();
+        String desc = pingData.getDescription();
 
         msg.writeString(getResponseJson(ver, protocol,
-                server.getConfig().getMaxPlayers(),
-                server.getConnections().getCount(), desc));
+                configuration.getMaxPlayers(),
+                this.server.getConnections().getCount(), desc));
     }
 
     @Override

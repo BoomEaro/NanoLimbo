@@ -26,13 +26,24 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
-import ua.nanit.limbo.configuration.LimboConfig;
+import lombok.NonNull;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.yaml.NodeStyle;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
+import ua.nanit.limbo.configuration.LimboConfiguration;
+import ua.nanit.limbo.configuration.data.Netty;
+import ua.nanit.limbo.configuration.serializers.ByteArraySerializer;
+import ua.nanit.limbo.configuration.serializers.InetSocketAddressSerializer;
+import ua.nanit.limbo.configuration.serializers.NbtMessageSerializer;
 import ua.nanit.limbo.connection.ClientChannelInitializer;
 import ua.nanit.limbo.connection.ClientConnection;
 import ua.nanit.limbo.connection.PacketHandler;
 import ua.nanit.limbo.connection.PacketSnapshots;
+import ua.nanit.limbo.protocol.NbtMessage;
 import ua.nanit.limbo.world.DimensionRegistry;
 
+import java.net.InetSocketAddress;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
@@ -41,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public final class LimboServer {
 
-    private LimboConfig config;
+    private LimboConfiguration configuration;
     private PacketHandler packetHandler;
     private Connections connections;
     private DimensionRegistry dimensionRegistry;
@@ -53,32 +64,31 @@ public final class LimboServer {
     private CommandManager commandManager;
 
     public void start() throws Exception {
-        config = new LimboConfig(Paths.get("./"));
-        config.load();
+        this.configuration = loadConfiguration();
 
-        Log.setLevel(config.getDebugLevel());
+        Log.setLevel(this.configuration.getDebugLevel());
         Log.info("Starting server...");
 
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
 
-        packetHandler = new PacketHandler(this);
-        dimensionRegistry = new DimensionRegistry(this);
-        dimensionRegistry.load("minecraft:" + config.getDimensionType().toLowerCase(Locale.ROOT));
-        connections = new Connections();
+        this.packetHandler = new PacketHandler(this);
+        this.dimensionRegistry = new DimensionRegistry(this);
+        this.dimensionRegistry.load("minecraft:" + this.configuration.getDimensionType().name().toLowerCase(Locale.ROOT));
+        this.connections = new Connections();
 
         PacketSnapshots.initPackets(this);
 
         startBootstrap();
 
-        keepAliveTask = workerGroup.scheduleAtFixedRate(this::broadcastKeepAlive, 0L, 5L, TimeUnit.SECONDS);
+        this.keepAliveTask = workerGroup.scheduleAtFixedRate(this::broadcastKeepAlive, 0L, 5L, TimeUnit.SECONDS);
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "NanoLimbo shutdown thread"));
 
-        Log.info("Server started on %s", config.getAddress());
+        Log.info("Server started on %s", configuration.getBind());
 
-        commandManager = new CommandManager();
-        commandManager.registerAll(this);
-        commandManager.start();
+        this.commandManager = new CommandManager();
+        this.commandManager.registerAll(this);
+        this.commandManager.start();
 
         System.gc();
     }
@@ -86,44 +96,70 @@ public final class LimboServer {
     private void startBootstrap() {
         ChannelFactory<? extends ServerChannel> channelFactory;
 
-        if (config.isUseEpoll() && Epoll.isAvailable()) {
-            bossGroup = new MultiThreadIoEventLoopGroup(config.getBossGroupSize(), EpollIoHandler.newFactory());
-            workerGroup = new MultiThreadIoEventLoopGroup(config.getWorkerGroupSize(), EpollIoHandler.newFactory());
+        Netty netty = this.configuration.getNetty();
+        if (netty.isUseEpoll() && Epoll.isAvailable()) {
+            this.bossGroup = new MultiThreadIoEventLoopGroup(netty.getThreads().getBossGroup(), EpollIoHandler.newFactory());
+            this.workerGroup = new MultiThreadIoEventLoopGroup(netty.getThreads().getWorkerGroup(), EpollIoHandler.newFactory());
             channelFactory = EpollServerSocketChannel::new;
             Log.debug("Using Epoll transport type");
         } else {
-            bossGroup = new MultiThreadIoEventLoopGroup(config.getBossGroupSize(), NioIoHandler.newFactory());
-            workerGroup = new MultiThreadIoEventLoopGroup(config.getWorkerGroupSize(), NioIoHandler.newFactory());
+            this.bossGroup = new MultiThreadIoEventLoopGroup(netty.getThreads().getBossGroup(), NioIoHandler.newFactory());
+            this.workerGroup = new MultiThreadIoEventLoopGroup(netty.getThreads().getWorkerGroup(), NioIoHandler.newFactory());
             channelFactory = NioServerSocketChannel::new;
             Log.debug("Using Java NIO transport type");
         }
 
         new ServerBootstrap()
-                .group(bossGroup, workerGroup)
+                .group(this.bossGroup, this.workerGroup)
                 .channelFactory(channelFactory)
                 .childHandler(new ClientChannelInitializer(this))
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .localAddress(config.getAddress())
+                .localAddress(this.configuration.getBind())
                 .bind();
     }
 
     private void broadcastKeepAlive() {
-        connections.getAllConnections().forEach(ClientConnection::sendKeepAlive);
+        this.connections.getAllConnections().forEach(ClientConnection::sendKeepAlive);
+    }
+
+    @NonNull
+    private LimboConfiguration loadConfiguration() throws ConfigurateException {
+        YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
+                .path(Paths.get("").toAbsolutePath().resolve("settings.yml"))
+                .nodeStyle(NodeStyle.BLOCK)
+                .indent(2)
+                .defaultOptions(configurationOptions -> configurationOptions.shouldCopyDefaults(true).serializers(builder -> {
+                    builder.register(InetSocketAddress.class, new InetSocketAddressSerializer());
+                    builder.register(NbtMessage.class, new NbtMessageSerializer());
+                    builder.register(byte[].class, new ByteArraySerializer());
+                }))
+                .build();
+
+        ConfigurationNode node = loader.load();
+        LimboConfiguration configuration = node.get(LimboConfiguration.class);
+        if (configuration != null) {
+            ConfigurationNode nodeToSave = loader.createNode().set(LimboConfiguration.class, new LimboConfiguration());
+
+            loader.save(nodeToSave);
+            return configuration;
+        }
+
+        throw new IllegalStateException("Failed to load configuration");
     }
 
     private void stop() {
         Log.info("Stopping server...");
 
-        if (keepAliveTask != null) {
-            keepAliveTask.cancel(true);
+        if (this.keepAliveTask != null) {
+            this.keepAliveTask.cancel(true);
         }
 
-        if (bossGroup != null) {
-            bossGroup.shutdownGracefully();
+        if (this.bossGroup != null) {
+            this.bossGroup.shutdownGracefully();
         }
 
-        if (workerGroup != null) {
-            workerGroup.shutdownGracefully();
+        if (this.workerGroup != null) {
+            this.workerGroup.shutdownGracefully();
         }
 
         Log.info("Server stopped, Goodbye!");

@@ -24,6 +24,8 @@ import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.IntBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
 import ua.nanit.limbo.LimboConstants;
+import ua.nanit.limbo.configuration.LimboConfiguration;
+import ua.nanit.limbo.configuration.data.*;
 import ua.nanit.limbo.protocol.ByteMessage;
 import ua.nanit.limbo.protocol.PacketSnapshot;
 import ua.nanit.limbo.protocol.packets.configuration.PacketFinishConfiguration;
@@ -34,7 +36,6 @@ import ua.nanit.limbo.protocol.packets.login.PacketLoginSuccess;
 import ua.nanit.limbo.protocol.packets.play.*;
 import ua.nanit.limbo.protocol.registry.Version;
 import ua.nanit.limbo.server.LimboServer;
-import ua.nanit.limbo.server.data.Title;
 import ua.nanit.limbo.util.NbtMessageUtil;
 import ua.nanit.limbo.util.UuidUtil;
 
@@ -88,7 +89,8 @@ public class PacketSnapshots {
     public static PacketSnapshot PACKET_START_WAITING_CHUNKS;
 
     public static void initPackets(LimboServer server) {
-        final String username = server.getConfig().getPingData().getVersion();
+        LimboConfiguration configuration = server.getConfiguration();
+        final String username = configuration.getPing().getVersion();
         final UUID uuid = UuidUtil.getOfflineModeUuid(username);
 
         PacketLoginSuccess loginSuccess = new PacketLoginSuccess();
@@ -96,14 +98,14 @@ public class PacketSnapshots {
         loginSuccess.setUuid(uuid);
 
         PacketJoinGame joinGame = new PacketJoinGame();
-        String worldName = "minecraft:" + server.getConfig().getDimensionType().toLowerCase(Locale.ROOT);
+        String worldName = "minecraft:" + configuration.getDimensionType().name().toLowerCase(Locale.ROOT);
         joinGame.setEntityId(0);
         joinGame.setEnableRespawnScreen(true);
         joinGame.setFlat(false);
-        joinGame.setGameMode(server.getConfig().getGameMode());
-        joinGame.setSecureProfile(server.getConfig().isSecureProfile());
+        joinGame.setGameMode(configuration.getGameMode());
+        joinGame.setSecureProfile(configuration.isSecureProfile());
         joinGame.setHardcore(false);
-        joinGame.setMaxPlayers(server.getConfig().getMaxPlayers());
+        joinGame.setMaxPlayers(configuration.getMaxPlayers());
         joinGame.setPreviousGameMode(-1);
         joinGame.setReducedDebugInfo(true);
         joinGame.setDebug(false);
@@ -127,7 +129,7 @@ public class PacketSnapshots {
                 = new PacketPlayerPositionAndLook(0, 400, 0, 0, 0, teleportId);
 
         PacketSpawnPosition packetSpawnPosition = new PacketSpawnPosition(
-                "minecraft:" + server.getConfig().getDimensionType().toLowerCase(Locale.ROOT),
+                "minecraft:" + configuration.getDimensionType().name().toLowerCase(Locale.ROOT),
                 0,
                 400,
                 0
@@ -137,12 +139,12 @@ public class PacketSnapshots {
         declareCommands.setCommands(Collections.emptyList());
 
         PacketPlayerInfo info = new PacketPlayerInfo();
-        String playerListName = server.getConfig().getPlayerListUsername();
+        String playerListName = configuration.getPlayerList().getUsername();
         if (playerListName.length() > 16) {
             playerListName = playerListName.substring(0, 16);
         }
         info.setUsername(playerListName);
-        info.setGameMode(server.getConfig().getGameMode());
+        info.setGameMode(configuration.getGameMode());
         info.setUuid(uuid);
 
         PACKET_LOGIN_SUCCESS = PacketSnapshot.of(loginSuccess);
@@ -155,19 +157,21 @@ public class PacketSnapshots {
 
         PACKET_DECLARE_COMMANDS = PacketSnapshot.of(declareCommands);
 
-        if (server.getConfig().isUseHeaderAndFooter()) {
+        HeaderAndFooter headerAndFooter = configuration.getHeaderAndFooter();
+        if (headerAndFooter.isEnable()) {
             PacketPlayerListHeader header = new PacketPlayerListHeader();
-            header.setHeader(NbtMessageUtil.create(server.getConfig().getPlayerListHeader()));
-            header.setFooter(NbtMessageUtil.create(server.getConfig().getPlayerListFooter()));
+            header.setHeader(NbtMessageUtil.create(headerAndFooter.getHeader()));
+            header.setFooter(NbtMessageUtil.create(headerAndFooter.getFooter()));
             PACKET_HEADER_AND_FOOTER = PacketSnapshot.of(header);
         }
 
-        if (server.getConfig().isUseBrandName()) {
+        BrandName brandName = configuration.getBrandName();
+        if (brandName.isEnable()) {
             PacketPluginMessage pluginMessage = new PacketPluginMessage();
             pluginMessage.setChannel(LimboConstants.BRAND_CHANNEL);
             ByteMessage byteMessage = new ByteMessage(ByteBufAllocator.DEFAULT.heapBuffer());
             try {
-                byteMessage.writeString(server.getConfig().getBrandName());
+                byteMessage.writeString(brandName.getContent());
                 pluginMessage.setData(byteMessage.toByteArray());
             } finally {
                 byteMessage.release();
@@ -175,24 +179,25 @@ public class PacketSnapshots {
             PACKET_PLUGIN_MESSAGE = PacketSnapshot.of(pluginMessage);
         }
 
-        if (server.getConfig().isUseJoinMessage()) {
-            PacketChatMessage joinMessage = new PacketChatMessage();
-            joinMessage.setMessage(NbtMessageUtil.create(server.getConfig().getJoinMessage()));
-            joinMessage.setPosition(PacketChatMessage.PositionLegacy.SYSTEM_MESSAGE);
-            joinMessage.setSender(UUID.randomUUID());
-            PACKET_JOIN_MESSAGE = PacketSnapshot.of(joinMessage);
+        JoinMessage joinMessage = configuration.getJoinMessage();
+        if (joinMessage.isEnable()) {
+            PacketChatMessage packetChatMessage = new PacketChatMessage();
+            packetChatMessage.setMessage(NbtMessageUtil.create(joinMessage.getText()));
+            packetChatMessage.setPosition(PacketChatMessage.PositionLegacy.SYSTEM_MESSAGE);
+            packetChatMessage.setSender(UUID.randomUUID());
+            PACKET_JOIN_MESSAGE = PacketSnapshot.of(packetChatMessage);
         }
 
-        if (server.getConfig().isUseBossBar()) {
-            PacketBossBar bossBar = new PacketBossBar();
-            bossBar.setBossBar(server.getConfig().getBossBar());
-            bossBar.setUuid(UUID.randomUUID());
-            PACKET_BOSS_BAR = PacketSnapshot.of(bossBar);
+        BossBar bossBar = configuration.getBossBar();
+        if (bossBar.isEnable()) {
+            PacketBossBar packetBossBar = new PacketBossBar();
+            packetBossBar.setBossBar(bossBar);
+            packetBossBar.setUuid(UUID.randomUUID());
+            PACKET_BOSS_BAR = PacketSnapshot.of(packetBossBar);
         }
 
-        if (server.getConfig().isUseTitle()) {
-            Title title = server.getConfig().getTitle();
-
+        Title title = configuration.getTitle();
+        if (title.isEnable()) {
             PacketTitleSetTitle packetTitle = new PacketTitleSetTitle();
             PacketTitleSetSubTitle packetSubtitle = new PacketTitleSetSubTitle();
             PacketTitleTimes packetTimes = new PacketTitleTimes();

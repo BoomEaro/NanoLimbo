@@ -112,7 +112,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
     }
 
     public void fireLoginSuccess() {
-        if (server.getConfig().getInfoForwarding().isModern() && velocityLoginMessageId == -1) {
+        if (server.getConfiguration().getInfoForwarding().isModern() && velocityLoginMessageId == -1) {
             disconnectLogin("You need to connect with Velocity");
             return;
         }
@@ -146,7 +146,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
             if (clientVersion.moreOrEqual(Version.V1_19_3))
                 writePacket(PacketSnapshots.PACKET_SPAWN_POSITION);
 
-            if (server.getConfig().isUsePlayerList() || clientVersion.equals(Version.V1_16_4))
+            if (server.getConfiguration().getPlayerList().isEnable() || clientVersion.equals(Version.V1_16_4))
                 writePacket(PacketSnapshots.PACKET_PLAYER_INFO);
 
             if (clientVersion.moreOrEqual(Version.V1_13)) {
@@ -337,7 +337,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
             return false;
         }
 
-        if (!server.getConfig().getInfoForwarding().hasToken(token)) {
+        if (!server.getConfiguration().getInfoForwarding().hasToken(token)) {
             return false;
         }
 
@@ -356,7 +356,7 @@ public class ClientConnection extends ChannelInboundHandlerAdapter {
         buf.getBytes(buf.readerIndex(), data);
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(server.getConfig().getInfoForwarding().getSecretKey(), "HmacSHA256"));
+            mac.init(new SecretKeySpec(server.getConfiguration().getInfoForwarding().getSecret(), "HmacSHA256"));
             byte[] mySignature = mac.doFinal(data);
             if (!MessageDigest.isEqual(signature, mySignature))
                 return false;

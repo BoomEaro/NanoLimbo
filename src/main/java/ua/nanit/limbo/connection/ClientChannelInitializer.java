@@ -22,6 +22,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.AllArgsConstructor;
+import ua.nanit.limbo.configuration.data.Traffic;
 import ua.nanit.limbo.connection.pipeline.*;
 import ua.nanit.limbo.server.LimboServer;
 
@@ -40,17 +41,18 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
         PacketEncoder encoder = new PacketEncoder();
         ClientConnection connection = new ClientConnection(channel, server, decoder, encoder);
 
-        pipeline.addLast("timeout", new ReadTimeoutHandler(server.getConfig().getReadTimeout(),
+        pipeline.addLast("timeout", new ReadTimeoutHandler(server.getConfiguration().getReadTimeout(),
                 TimeUnit.MILLISECONDS));
         pipeline.addLast("frame_decoder", new VarIntFrameDecoder());
         pipeline.addLast("frame_encoder", new VarIntLengthEncoder());
 
-        if (server.getConfig().isUseTrafficLimits()) {
+        Traffic traffic = server.getConfiguration().getTraffic();
+        if (traffic.isEnable()) {
             pipeline.addLast("traffic_limit", new ChannelTrafficHandler(
-                    server.getConfig().getMaxPacketSize(),
-                    server.getConfig().getInterval(),
-                    server.getConfig().getMaxPacketRate(),
-                    server.getConfig().getMaxPacketBytesRate()
+                    traffic.getMaxPacketSize(),
+                    traffic.getInterval(),
+                    traffic.getMaxPacketRate(),
+                    traffic.getMaxPacketBytesRate()
             ));
         }
 
