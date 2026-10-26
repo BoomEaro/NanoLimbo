@@ -124,6 +124,9 @@ public class PacketHandler {
     }
 
     public void handle(@NonNull ClientConnection conn, @NonNull PacketLoginStart packet) {
+        if (conn.getUsername() != null) {
+            return;
+        }
         if (server.getConfig().getMaxPlayers() > 0 &&
                 server.getConnections().getCount() >= server.getConfig().getMaxPlayers()) {
             conn.disconnect(Component.text("Too many players connected", NamedTextColor.RED));
