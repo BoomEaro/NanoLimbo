@@ -1,5 +1,5 @@
 [versions]
-netty = "4.2.18.Final"
+netty = "4.2.19.Final"
 lombok = "1.18.46"
 shadow = "9.6.1"
 buildconfig = "6.0.10"
