@@ -1,7 +1,7 @@
 [versions]
 netty = "4.2.18.Final"
 lombok = "1.18.46"
-shadow = "9.4.2"
+shadow = "9.6.1"
 buildconfig = "6.0.10"
 gson = "2.14.0"
 logback = "1.5.34"
